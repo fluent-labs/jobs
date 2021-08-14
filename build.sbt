@@ -8,7 +8,7 @@ ThisBuild / organizationName := "fluentlabs"
 lazy val root = (project in file("."))
   .settings(
     name := "jobs",
-    libraryDependencies += Seq(
+    libraryDependencies ++= Seq(
       Dependencies.scalaTest % Test,
       Dependencies.content,
       Dependencies.sparkCore % "provided",
@@ -18,6 +18,7 @@ lazy val root = (project in file("."))
       Dependencies.hadoop,
       Dependencies.hadoopClient,
       Dependencies.hadoopAWS,
-      Dependencies.awsJavaSDK
+      Dependencies.awsJavaSDK,
+      Dependencies.elasticsearchHadoop
     )
   )
