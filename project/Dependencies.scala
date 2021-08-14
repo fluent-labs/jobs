@@ -16,6 +16,4 @@ object Dependencies {
   val hadoopClient = "org.apache.hadoop" % "hadoop-client" % hadoopVersion
   val hadoopAWS = "org.apache.hadoop" % "hadoop-aws" % hadoopVersion
   val awsJavaSDK = "com.amazonaws" % "aws-java-sdk" % "1.12.42"
-  val elasticsearchHadoop =
-    "org.elasticsearch" % "elasticsearch-hadoop" % elasticsearchVersion
 }

@@ -47,15 +47,14 @@ lazy val settings = Seq(
 lazy val dependencies = Seq(
   Dependencies.scalaTest % Test,
   Dependencies.content,
-//  Dependencies.sparkCore % "provided",
-//  Dependencies.sparkSql % "provided",
+  Dependencies.sparkCore % "provided",
+  Dependencies.sparkSql % "provided",
   Dependencies.sparkXml,
   // S3 support
   Dependencies.hadoop,
   Dependencies.hadoopClient,
   Dependencies.hadoopAWS,
-  Dependencies.awsJavaSDK,
-  Dependencies.elasticsearchHadoop
+  Dependencies.awsJavaSDK
 )
 
 /*
@@ -68,7 +67,7 @@ lazy val assemblySettings = Seq(
   githubRepository := "jobs",
   // Used for building jobs fat jars
   assemblyJarName in assembly := name.value + ".jar",
-  assemblyMergeStrategy / assembly := {
+  assemblyMergeStrategy in assembly := {
     case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
     case _                                   => MergeStrategy.first
   }
