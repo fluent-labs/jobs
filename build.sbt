@@ -68,7 +68,7 @@ lazy val assemblySettings = Seq(
   githubRepository := "jobs",
   // Used for building jobs fat jars
   assemblyJarName in assembly := name.value + ".jar",
-  assemblyMergeStrategy in assembly := {
+  assemblyMergeStrategy / assembly := {
     case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
     case _                                   => MergeStrategy.first
   }
@@ -79,5 +79,5 @@ lazy val assemblySettings = Seq(
  */
 
 // Code coverage settings
-coverageMinimum := 70
+coverageMinimumStmtTotal := 70
 coverageFailOnMinimum := false
