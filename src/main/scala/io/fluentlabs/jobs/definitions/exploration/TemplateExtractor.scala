@@ -1,8 +1,11 @@
 package io.fluentlabs.jobs.definitions.exploration
 
 import com.databricks.spark.xml._
-import com.foreignlanguagereader.jobs.definitions.WiktionaryTemplate
-import io.fluentlabs.jobs.definitions.{WiktionaryRawText, WiktionaryTemplate, WiktionaryTemplateInstance}
+import io.fluentlabs.jobs.definitions.{
+  WiktionaryRawText,
+  WiktionaryTemplate,
+  WiktionaryTemplateInstance
+}
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{col, element_at, posexplode, udf}
 import org.apache.spark.sql.{Dataset, SparkSession}
@@ -34,11 +37,12 @@ object TemplateExtractor {
       .appName(s"Wiktionary Template Extractor")
       .getOrCreate()
 
-    backups.foreach { case (dictionary, path) =>
-      extractTemplatesFromBackup(
-        s"$backupsBasePath/$path",
-        s"$backupsBasePath/templates/$dictionary"
-      )
+    backups.foreach {
+      case (dictionary, path) =>
+        extractTemplatesFromBackup(
+          s"$backupsBasePath/$path",
+          s"$backupsBasePath/templates/$dictionary"
+        )
     }
   }
 

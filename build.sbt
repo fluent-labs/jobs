@@ -41,6 +41,9 @@ lazy val settings = Seq(
   publishConfiguration := publishConfiguration.value.withOverwrite(true),
   publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(
     true
+  ),
+  unmanagedJars in Compile += file(
+    "lib/elasticsearch-spark-30_2.12-8.0.0-SNAPSHOT.jar"
   )
 )
 

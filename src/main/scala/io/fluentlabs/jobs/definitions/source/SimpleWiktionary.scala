@@ -2,8 +2,11 @@ package io.fluentlabs.jobs.definitions.source
 
 import io.fluentlabs.content.types.external.definition.wiktionary.SimpleWiktionaryDefinitionEntry
 import io.fluentlabs.content.types.internal.definition.DefinitionSource
-import com.foreignlanguagereader.jobs.definitions.{DefinitionsParsingJob, Wiktionary, WiktionaryRawEntry}
-import io.fluentlabs.jobs.definitions.{DefinitionsParsingJob, Wiktionary, WiktionaryRawEntry}
+import io.fluentlabs.jobs.definitions.{
+  DefinitionsParsingJob,
+  Wiktionary,
+  WiktionaryRawEntry
+}
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Column, DataFrame, Dataset, SparkSession}
