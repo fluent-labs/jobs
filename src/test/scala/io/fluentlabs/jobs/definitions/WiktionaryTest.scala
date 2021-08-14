@@ -1,6 +1,5 @@
 package io.fluentlabs.jobs.definitions
 
-import io.fluentlabs.jobs.definitions.Wiktionary
 import org.scalatest.funspec.AnyFunSpec
 
 class WiktionaryTest extends AnyFunSpec {

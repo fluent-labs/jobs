@@ -3,7 +3,6 @@ package io.fluentlabs.jobs.definitions.source
 import io.fluentlabs.content.types.external.definition.wiktionary.SimpleWiktionaryDefinitionEntry
 import io.fluentlabs.content.types.internal.word.PartOfSpeech
 import io.fluentlabs.jobs.definitions.WiktionaryRawEntry
-import io.fluentlabs.jobs.definitions.source.SimpleWiktionary
 import org.apache.spark.sql.SparkSession
 import org.scalatest.funspec.AnyFunSpec
 
