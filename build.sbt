@@ -12,7 +12,8 @@ lazy val root = (project in file("."))
     scalacOptions ++= compilerOptions,
     settings,
     assemblySettings,
-    libraryDependencies ++= dependencies
+    libraryDependencies ++= dependencies,
+    dependencyOverrides ++= forcedDependencies
   )
 
 /*
@@ -58,6 +59,12 @@ lazy val dependencies = Seq(
   Dependencies.hadoopClient,
   Dependencies.hadoopAWS,
   Dependencies.awsJavaSDK
+)
+
+lazy val forcedDependencies = Seq(
+  Dependencies.jacksonScala,
+  Dependencies.jacksonDatabind,
+  Dependencies.jacksonCore
 )
 
 /*
