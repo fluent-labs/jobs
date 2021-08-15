@@ -1,13 +1,12 @@
 import sbt._
 
 object Dependencies {
-  val elasticsearchVersion = "8.0.0-alpha1"
   val hadoopVersion = "3.3.1"
   val jacksonVersion = "2.11.3"
   val sparkVersion = "3.1.2"
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.9"
-  val content = "io.fluentlabs" %% "content" % "1.0.1"
+  val content = "io.fluentlabs" %% "content" % "1.0.5"
 
   val sparkCore = "org.apache.spark" %% "spark-core" % sparkVersion
   val sparkSql = "org.apache.spark" %% "spark-sql" % sparkVersion
