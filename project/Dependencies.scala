@@ -15,7 +15,7 @@ object Dependencies {
   val hadoop = "org.apache.hadoop" % "hadoop-common" % hadoopVersion
   val hadoopClient = "org.apache.hadoop" % "hadoop-client" % hadoopVersion
   val hadoopAWS = "org.apache.hadoop" % "hadoop-aws" % hadoopVersion
-  val awsJavaSDK = "com.amazonaws" % "aws-java-sdk" % "1.12.47"
+  val awsJavaSDK = "com.amazonaws" % "aws-java-sdk" % "1.12.52"
 
   // Security related dependency upgrades below here
   val jacksonScala =
