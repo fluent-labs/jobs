@@ -3,19 +3,19 @@ import sbt._
 object Dependencies {
   val hadoopVersion = "3.3.1"
   val jacksonVersion = "2.11.3"
-  val sparkVersion = "3.1.2"
+  val sparkVersion = "3.2.0"
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.9"
-  val content = "io.fluentlabs" %% "content" % "1.0.7"
+  val content = "io.fluentlabs" %% "content" % "1.0.8"
 
   val sparkCore = "org.apache.spark" %% "spark-core" % sparkVersion
   val sparkSql = "org.apache.spark" %% "spark-sql" % sparkVersion
-  val sparkXml = "com.databricks" %% "spark-xml" % "0.12.0"
+  val sparkXml = "com.databricks" %% "spark-xml" % "0.14.0"
 
   val hadoop = "org.apache.hadoop" % "hadoop-common" % hadoopVersion
   val hadoopClient = "org.apache.hadoop" % "hadoop-client" % hadoopVersion
   val hadoopAWS = "org.apache.hadoop" % "hadoop-aws" % hadoopVersion
-  val awsJavaSDK = "com.amazonaws" % "aws-java-sdk" % "1.12.62"
+  val awsJavaSDK = "com.amazonaws" % "aws-java-sdk" % "1.12.105"
 
   // Security related dependency upgrades below here
   val jacksonScala =
