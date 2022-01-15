@@ -26,10 +26,10 @@ lazy val compilerOptions = Seq(
   "-deprecation",
   "-feature",
   "-unchecked",
-  "-Xfatal-warnings"
+  "-Xfatal-warnings",
+  "-Wdead-code",
 )
 // Add these back in when we can get to scala 2.13
-//  "-Wdead-code",
 //  "-Wvalue-discard",
 
 lazy val settings = Seq(
