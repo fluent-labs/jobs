@@ -28,9 +28,8 @@ lazy val compilerOptions = Seq(
   "-unchecked",
   "-Xfatal-warnings",
   "-Wdead-code",
+  "-Wvalue-discard"
 )
-// Add these back in when we can get to scala 2.13
-//  "-Wvalue-discard",
 
 lazy val settings = Seq(
   githubTokenSource := TokenSource.Or(
