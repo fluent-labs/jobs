@@ -26,8 +26,7 @@ lazy val compilerOptions = Seq(
   "-deprecation",
   "-feature",
   "-unchecked",
-  "-Xfatal-warnings",
-  "-Ypartial-unification" // Remove me in scala 2.13
+  "-Xfatal-warnings"
 )
 // Add these back in when we can get to scala 2.13
 //  "-Wdead-code",
