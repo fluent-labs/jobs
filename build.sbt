@@ -41,7 +41,7 @@ lazy val settings = Seq(
   publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(
     true
   ),
-  unmanagedJars in Compile += file(
+  Compile \ unmanagedJars += file(
     "lib/elasticsearch-spark-30_2.12-8.0.0-SNAPSHOT.jar"
   )
 )
@@ -74,8 +74,8 @@ lazy val assemblySettings = Seq(
   githubOwner := "fluent-labs",
   githubRepository := "jobs",
   // Used for building jobs fat jars
-  assemblyJarName in assembly := name.value + ".jar",
-  assemblyMergeStrategy in assembly := {
+  assembly \ assemblyJarName := name.value + ".jar",
+  assembly \ assemblyMergeStrategy := {
     case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
     case _                                   => MergeStrategy.first
   }
