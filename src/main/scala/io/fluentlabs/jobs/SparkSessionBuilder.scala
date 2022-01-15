@@ -5,7 +5,8 @@ import org.apache.spark.sql.SparkSession
 // $COVERAGE-OFF$
 object SparkSessionBuilder {
   def build(name: String): SparkSession = {
-    SparkSession.builder
+    SparkSession
+      .builder()
       .appName(name)
       .config("es.nodes", "elastic.foreignlanguagereader.com")
       .config("es.index.auto.create", "true")

@@ -33,7 +33,8 @@ object TemplateExtractor {
   )
 
   def main(args: Array[String]): Unit = {
-    implicit val spark: SparkSession = SparkSession.builder
+    implicit val spark: SparkSession = SparkSession
+      .builder()
       .appName(s"Wiktionary Template Extractor")
       .getOrCreate()
 

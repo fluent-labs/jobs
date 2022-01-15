@@ -24,7 +24,8 @@ object SectionFinder {
     LogManager.getLogger(jobName)
 
   def main(args: Array[String]): Unit = {
-    implicit val spark: SparkSession = SparkSession.builder
+    implicit val spark: SparkSession = SparkSession
+      .builder()
       .appName(jobName)
       .getOrCreate()
 
