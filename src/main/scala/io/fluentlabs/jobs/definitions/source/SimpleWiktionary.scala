@@ -167,7 +167,7 @@ object SimpleWiktionary
     .toMap
 
   val subsectionsToDrop: Map[String, Set[String]] =
-    subsectionsInverted.view.toMap.map { case (subsectionName, subsectionSet) =>
+    subsectionsInverted.map { case (subsectionName, subsectionSet) =>
       // We don't want to lose the subsection we combined things to
       subsectionName -> subsectionSet.filter(!_.equals(subsectionName))
     }
