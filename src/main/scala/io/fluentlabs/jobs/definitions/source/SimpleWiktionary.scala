@@ -160,19 +160,22 @@ object SimpleWiktionary
 
   val subsectionsInverted: Map[String, Set[String]] = subsectionMap
     .groupBy { case (_, normalized) => normalized }
+    .view
     .mapValues(_.keySet)
+    .toMap
 
-  val subsectionsToDrop: Map[String, Set[String]] = subsectionsInverted.map {
-    case (subsectionName, subsectionSet) =>
+  val subsectionsToDrop: Map[String, Set[String]] =
+    subsectionsInverted.view.toMap.map { case (subsectionName, subsectionSet) =>
       // We don't want to lose the subsection we combined things to
       subsectionName -> subsectionSet.filter(!_.equals(subsectionName))
-  }
+    }
 
   val subsectionsToCombine: Map[String, Column] =
-    subsectionsInverted
+    subsectionsInverted.view
       .mapValues(subsections =>
         array(subsections.head, subsections.tail.toArray: _*)
       )
+      .toMap
 
   def addOptionalSections(data: DataFrame): DataFrame = {
     val extracted =
