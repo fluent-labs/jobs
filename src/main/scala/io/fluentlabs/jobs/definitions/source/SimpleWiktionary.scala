@@ -11,6 +11,8 @@ import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Column, DataFrame, Dataset, SparkSession}
 
+import scala.collection.immutable.ArraySeq
+
 object SimpleWiktionary
     extends DefinitionsParsingJob[SimpleWiktionaryDefinitionEntry](
       "s3a://foreign-language-reader-content/definitions/wiktionary/",
@@ -94,7 +96,7 @@ object SimpleWiktionary
   )
 
   val partOfSpeechCols: Column =
-    array(partsOfSpeech.head, partsOfSpeech.tail: _*)
+    array(partsOfSpeech.head, ArraySeq.unsafeWrapArray(partsOfSpeech.tail): _*)
 
   def mapWiktionaryPartOfSpeechToDomainPartOfSpeech(
       partOfSpeech: String
@@ -173,7 +175,10 @@ object SimpleWiktionary
   val subsectionsToCombine: Map[String, Column] =
     subsectionsInverted.view
       .mapValues(subsections =>
-        array(subsections.head, subsections.tail.toArray: _*)
+        array(
+          subsections.head,
+          ArraySeq.unsafeWrapArray(subsections.tail.toArray): _*
+        )
       )
       .toMap
 
@@ -186,7 +191,7 @@ object SimpleWiktionary
         subsectionsToDrop.getOrElse(subsectionName, Set()).toArray
       acc
         .withColumn(subsectionName, array_remove(subsectionColumns, ""))
-        .drop(columnsToDrop: _*)
+        .drop(ArraySeq.unsafeWrapArray(columnsToDrop): _*)
     })
   }
 }
