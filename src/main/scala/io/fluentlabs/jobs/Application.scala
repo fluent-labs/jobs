@@ -9,7 +9,8 @@ object Application extends App {
   val SIMPLE_WIKTIONARY_PATH =
     "content/definitions/src/main/resources/simplewiktionary-20200301-pages-meta-current.xml"
 
-  implicit val spark: SparkSession = SparkSession.builder
+  implicit val spark: SparkSession = SparkSession
+    .builder()
     .master("local[*]")
     .appName("WiktionaryParse")
     .getOrCreate()

@@ -1,6 +1,6 @@
 import Dependencies._
 
-ThisBuild / scalaVersion := "2.12.15"
+ThisBuild / scalaVersion := "2.13.8"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "io.fluentlabs"
 ThisBuild / organizationName := "fluentlabs"
@@ -27,11 +27,9 @@ lazy val compilerOptions = Seq(
   "-feature",
   "-unchecked",
   "-Xfatal-warnings",
-  "-Ypartial-unification" // Remove me in scala 2.13
+  "-Wdead-code",
+  "-Wvalue-discard"
 )
-// Add these back in when we can get to scala 2.13
-//  "-Wdead-code",
-//  "-Wvalue-discard",
 
 lazy val settings = Seq(
   githubTokenSource := TokenSource.Or(
@@ -43,7 +41,7 @@ lazy val settings = Seq(
   publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(
     true
   ),
-  unmanagedJars in Compile += file(
+  Compile / unmanagedJars += file(
     "lib/elasticsearch-spark-30_2.12-8.0.0-SNAPSHOT.jar"
   )
 )
@@ -76,8 +74,8 @@ lazy val assemblySettings = Seq(
   githubOwner := "fluent-labs",
   githubRepository := "jobs",
   // Used for building jobs fat jars
-  assemblyJarName in assembly := name.value + ".jar",
-  assemblyMergeStrategy in assembly := {
+  assembly / assemblyJarName := name.value + ".jar",
+  assembly / assemblyMergeStrategy := {
     case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
     case _                                   => MergeStrategy.first
   }
