@@ -6,7 +6,7 @@ object Dependencies {
   val sparkVersion = "3.2.1"
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.11"
-  val content = "io.fluentlabs" %% "content" % "1.0.17"
+  val content = "io.fluentlabs" %% "content" % "1.0.20"
 
   val sparkCore = "org.apache.spark" %% "spark-core" % sparkVersion
   val sparkSql = "org.apache.spark" %% "spark-sql" % sparkVersion
