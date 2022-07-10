@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
   val hadoopVersion = "3.3.1"
   val jacksonVersion = "2.11.3"
-  val sparkVersion = "3.2.1"
+  val sparkVersion = "3.3.0"
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.11"
   val content = "io.fluentlabs" %% "content" % "1.0.17"
