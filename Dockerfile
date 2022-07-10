@@ -22,6 +22,11 @@ RUN mkdir -p "$SBT_HOME" && \
     wget -qO - --no-check-certificate "https://github.com/sbt/sbt/releases/download/v$SBT_VERSION/sbt-$SBT_VERSION.tgz" |  tar xz -C $INSTALL_DIR && \
     echo "- with sbt $SBT_VERSION" >> /root/.built
 
+# Needed because sbt will barf if we don't have one
+# Even though we aren't actually accessing the maven package repository
+ARG GITHUB_TOKEN=faketoken
+ENV GITHUB_TOKEN=$GITHUB_TOKEN
+
 # Cache dependencies
 COPY project project
 COPY build.sbt build.sbt
