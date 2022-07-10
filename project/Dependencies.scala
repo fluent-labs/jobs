@@ -1,7 +1,7 @@
 import sbt._
 
 object Dependencies {
-  val hadoopVersion = "3.3.1"
+  val hadoopVersion = "3.3.3"
   val jacksonVersion = "2.11.3"
   val sparkVersion = "3.3.0"
 
