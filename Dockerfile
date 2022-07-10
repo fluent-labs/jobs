@@ -11,6 +11,9 @@ ENV PATH ${PATH}:${SBT_HOME}/bin
 # Keep failing pipe command from reporting success to the build.
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
+# Sbt requires this for some reason
+RUN apk add --no-cache bash=5.1.16-r0
+
 # Install wget to download dictionaries.
 RUN apk add --no-cache wget=1.21.2-r2
 
