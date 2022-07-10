@@ -1,4 +1,4 @@
-FROM alpine:3.15
+FROM amazoncorretto:18-alpine3.15
 
 LABEL maintainer="reader@lucaskjaerozhang.com"
 WORKDIR /app
