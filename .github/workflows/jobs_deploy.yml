@@ -52,5 +52,7 @@ jobs:
 
     - name: Build container
       run: |
-        docker build . -t lkjaero/spark-runner:latest --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+        docker build --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} . -t lkjaero/spark-runner:latest 
         docker push lkjaero/spark-runner:latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
