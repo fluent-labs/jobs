@@ -16,8 +16,8 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # Sbt requires this for some reason
 RUN apk add --no-cache bash=5.1.16-r0
 
-# Install wget to download dictionaries.
-RUN apk add --no-cache wget=1.21.2-r2
+# Install wget to download dictionaries and full tar to open them
+RUN apk add --no-cache wget=1.21.2-r2 tar=1.34-r0
 
 ENV SBT_VERSION 1.7.0
 
@@ -28,7 +28,6 @@ RUN mkdir -p "$SBT_HOME" && \
 
 
 # Cache dependencies
-COPY project project
-COPY build.sbt build.sbt
+COPY . .
 COPY coursier_cache /root/.cache/coursier/v1/
-RUN sbt compile
+RUN sbt assembly
