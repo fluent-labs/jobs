@@ -49,16 +49,6 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    
-    # Why do we do this here instead of in the docker image?
-    # It's because github package repository needs auth
-    # And we DO NOT want that auth inside the docker image
-    - name: Download dependencies
-      run: |
-        sbt compile
-        cp -r ~/.cache/coursier/v1/ ./coursier_cache
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build container
       run: |
