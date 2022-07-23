@@ -50,7 +50,7 @@ class SimpleWiktionaryTest extends AnyFunSpec {
 
     assert(entryParsed.token == "Is")
     assert(entryParsed.definition == definition)
-    assert(entryParsed.tag.contains("verb"))
+    assert(entryParsed.tag.contains("Verb"))
     assert(entryParsed.ipa == "ɪz")
     assert(
       entryParsed.subdefinitions === List(
