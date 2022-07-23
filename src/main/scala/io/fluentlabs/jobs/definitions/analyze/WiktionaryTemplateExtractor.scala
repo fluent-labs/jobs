@@ -5,7 +5,6 @@ import io.fluentlabs.jobs.definitions.{
   WiktionaryTemplate,
   WiktionaryTemplateInstance
 }
-import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{col, element_at, posexplode, udf}
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
@@ -15,9 +14,6 @@ import scala.util.{Failure, Success, Try}
 class WiktionaryTemplateExtractor(source: String)
     extends DefinitionsAnalysisJob(source)
     with WiktionaryParser {
-
-  @transient override lazy val logger: Logger =
-    LogManager.getLogger("Wiktionary Template Extractor")
 
   override def getFilename(source: String, version: String): String =
     s"$source-$version-pages-meta-current.xml"

@@ -9,6 +9,7 @@ import org.apache.spark.sql.SparkSession
 import org.scalatest.funspec.AnyFunSpec
 
 class SimpleWiktionaryTest extends AnyFunSpec {
+
   lazy val spark: SparkSession = {
     SparkSession
       .builder()
@@ -39,7 +40,7 @@ class SimpleWiktionaryTest extends AnyFunSpec {
     val entryraw = WiktionaryRawEntry(42, "Is", text)
     val entryParsed: SimpleWiktionaryDefinitionEntry =
       SimpleWiktionaryCleaningJob
-        .parseSimple(Seq(entryraw).toDS())(spark)
+        .clean(Seq(entryraw).toDF())(spark)
         .first()
 
     val definition =
