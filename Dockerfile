@@ -14,17 +14,18 @@ ENV GITHUB_TOKEN=faketoken
 # Keep failing pipe command from reporting success to the build.
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
-# Sbt requires this for some reason
-RUN apk add --no-cache bash=5.1.16-r0
-
-# Install wget to download dictionaries and full tar to open them
-RUN apk add --no-cache wget=1.21.2-r2 tar=1.34-r0
+# Sbt requires bash for some reason
+# Install wget to download dictionaries
+# Python for s3cmd
+RUN apk add --no-cache bash=5.1.16-r0 \
+    wget=1.21.2-r2 \
+    python3=3.9.7-r4 \
+    py3-setuptools=52.0.0-r4
 
 # Used to upload the spark job to s3
-RUN apk add --no-cache python3=3.9.7-r4 && \
-  wget -qO - --no-check-certificate "https://github.com/s3tools/s3cmd/releases/download/v2.2.0/s3cmd-2.2.0.tar.gz" |  tar xz -C $INSTALL_DIR && \
+RUN wget -qO - --no-check-certificate "https://github.com/s3tools/s3cmd/releases/download/v2.2.0/s3cmd-2.2.0.tar.gz" |  tar xz -C $INSTALL_DIR && \
   cd $S3CMD_DIR && \
-  python setup.py install
+  python3 setup.py install
 
 ENV SBT_VERSION 1.7.0
 
