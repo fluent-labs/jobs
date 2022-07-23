@@ -82,9 +82,11 @@ object Wiktionary {
     ) + anythingButEqualsSign // Needed or else outer equals will be ignored
   // Subtle but '== Test ==' will match '=== Test ===' at this point: '="== Test =="='
 
+  // == name ==
   def sectionRegex(sectionName: String): String =
     periodMatchesNewlineFlag + caseInsensitiveFlag + doubleEqualsSign + optionalWhiteSpace + sectionName + optionalWhiteSpace + doubleEqualsSign + lazyMatchAnything + nextSectionOrEndOfFile
 
+  // === name ===
   def subSectionRegex(sectionName: String): String =
     periodMatchesNewlineFlag + caseInsensitiveFlag + tripleEqualsSign + optionalWhiteSpace + sectionName + optionalWhiteSpace + tripleEqualsSign + lazyMatchAnything + nextSectionOrEndOfFile
 

@@ -19,7 +19,7 @@ abstract class DefinitionsCleaningJob[T](source: String) {
   // Methods for subclasses to implement
   def getFilename(source: String, version: String): String
   def load(path: String)(implicit spark: SparkSession): DataFrame
-  def clean(data: DataFrame): Dataset[T]
+  def clean(data: DataFrame)(implicit spark: SparkSession): Dataset[T]
 
   // Values we calculated
   val rawPath: String =
