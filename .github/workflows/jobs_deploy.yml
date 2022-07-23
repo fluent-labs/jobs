@@ -62,5 +62,5 @@ jobs:
 
     - name: Build container
       run: |
-        docker build . -t lkjaero/spark-runner:latest 
-        docker push lkjaero/spark-runner:latest
+        docker build . -t lkjaero/jenkins-runners:spark 
+        docker push lkjaero/jenkins-runners:spark
