@@ -1,18 +1,41 @@
-package io.fluentlabs.jobs.definitions.exploration
+package io.fluentlabs.jobs.definitions.analyze
 
-import com.databricks.spark.xml._
+import io.fluentlabs.jobs.definitions.source.WiktionaryParser
 import io.fluentlabs.jobs.definitions.{
-  WiktionaryRawText,
   WiktionaryTemplate,
   WiktionaryTemplateInstance
 }
+import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{col, element_at, posexplode, udf}
-import org.apache.spark.sql.{Dataset, SparkSession}
+import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 
 import scala.util.{Failure, Success, Try}
 
-object TemplateExtractor {
+class WiktionaryTemplateExtractor(source: String)
+    extends DefinitionsAnalysisJob(source)
+    with WiktionaryParser {
+
+  @transient override lazy val logger: Logger =
+    LogManager.getLogger("Wiktionary Template Extractor")
+
+  override def getFilename(source: String, version: String): String =
+    s"$source-$version-pages-meta-current.xml"
+
+  override def load(path: String)(implicit spark: SparkSession): DataFrame =
+    loadWiktionaryDump(path)
+
+  def analyze(data: DataFrame, outputPath: String)(implicit
+      spark: SparkSession
+  ): Unit = {
+    val templateInstances =
+      extractTemplateInstances(data).cache()
+    templateInstances.write.csv(s"$outputPath/instances.csv")
+
+    val templates = extractTemplateCount(templateInstances)
+    templates.write.csv(s"$outputPath/templates.csv")
+  }
+
   val leftBrace = "\\{"
   val rightBrace = "\\}"
   val pipe = "\\|"
@@ -23,55 +46,8 @@ object TemplateExtractor {
   val templateRegex: String =
     leftBrace + leftBrace + notPipeCaptureGroup + notRightBraceCaptureGroup + rightBrace + rightBrace
 
-  println(s"Template regex: $templateRegex")
-
-  val backupsBasePath =
-    "s3a://foreign-language-reader-content/definitions/wiktionary/"
-
-  val backups = Map(
-    "simple" -> "simplewiktionary-20200301-pages-meta-current.xml"
-  )
-
-  def main(args: Array[String]): Unit = {
-    implicit val spark: SparkSession = SparkSession
-      .builder()
-      .appName(s"Wiktionary Template Extractor")
-      .getOrCreate()
-
-    backups.foreach { case (dictionary, path) =>
-      extractTemplatesFromBackup(
-        s"$backupsBasePath/$path",
-        s"$backupsBasePath/templates/$dictionary"
-      )
-    }
-  }
-
-  def extractTemplatesFromBackup(path: String, resultPath: String)(implicit
-      spark: SparkSession
-  ): Unit = {
-    val templateInstances =
-      extractTemplateInstances(loadWiktionaryDump(path)).cache()
-    templateInstances.write.csv(s"$resultPath/instances.csv")
-
-    val templates = extractTemplateCount(templateInstances)
-    templates.write.csv(s"$resultPath/templates.csv")
-  }
-
-  def loadWiktionaryDump(
-      path: String
-  )(implicit spark: SparkSession): Dataset[WiktionaryRawText] = {
-    import spark.implicits._
-
-    spark.read
-      .option("rowTag", "page")
-      .xml(path)
-      .select("revision.text._VALUE")
-      .withColumnRenamed("_VALUE", "text")
-      .as[WiktionaryRawText]
-  }
-
   def extractTemplateInstances(
-      data: Dataset[WiktionaryRawText]
+      data: DataFrame
   )(implicit spark: SparkSession): Dataset[WiktionaryTemplateInstance] = {
     import spark.implicits._
 

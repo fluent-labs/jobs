@@ -1,6 +1,10 @@
 package io.fluentlabs.jobs.definitions.source
 
 import io.fluentlabs.jobs.definitions.WiktionaryRawEntry
+import io.fluentlabs.jobs.definitions.clean.{
+  SimpleWiktionaryCleaningJob,
+  SimpleWiktionaryDefinitionEntry
+}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.funspec.AnyFunSpec
 
@@ -34,7 +38,9 @@ class SimpleWiktionaryTest extends AnyFunSpec {
 
     val entryraw = WiktionaryRawEntry(42, "Is", text)
     val entryParsed: SimpleWiktionaryDefinitionEntry =
-      SimpleWiktionary.parseSimple(Seq(entryraw).toDS())(spark).first()
+      SimpleWiktionaryCleaningJob
+        .parseSimple(Seq(entryraw).toDS())(spark)
+        .first()
 
     val definition =
       """

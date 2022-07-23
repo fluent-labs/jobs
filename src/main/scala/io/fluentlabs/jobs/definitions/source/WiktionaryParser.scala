@@ -1,16 +1,28 @@
-package io.fluentlabs.jobs.definitions
+package io.fluentlabs.jobs.definitions.source
 
-import com.databricks.spark.xml._
+import com.databricks.spark.xml.XmlDataFrameReader
 import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
+import org.apache.spark.sql.functions.{col, explode, regexp_extract, udf}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 
 import scala.util.{Failure, Success, Try}
 
-object Wiktionary {
-  @transient lazy val log: Logger =
+trait WiktionaryParser {
+  @transient lazy val logger: Logger =
     LogManager.getLogger(this.getClass.getName)
+
+  def loadWiktionaryDump(
+      path: String
+  )(implicit spark: SparkSession): DataFrame = {
+    spark.read
+      .option("rowTag", "page")
+      .xml(path)
+      .select("revision.text._VALUE", "title", "id")
+      .withColumnRenamed("title", "token")
+      .withColumnRenamed("_VALUE", "text")
+      .filter(row => filterMetaArticles(row))
+  }
 
   val metaArticleTitles: Set[String] =
     Set(
@@ -32,21 +44,6 @@ object Wiktionary {
       "Module talk:",
       "Talk:"
     )
-
-  def loadWiktionaryDump(
-      path: String
-  )(implicit spark: SparkSession): Dataset[WiktionaryRawEntry] = {
-    import spark.implicits._
-
-    spark.read
-      .option("rowTag", "page")
-      .xml(path)
-      .select("revision.text._VALUE", "title", "id")
-      .withColumnRenamed("title", "token")
-      .withColumnRenamed("_VALUE", "text")
-      .filter(row => filterMetaArticles(row))
-      .as[WiktionaryRawEntry]
-  }
 
   def filterMetaArticles(row: Row): Boolean = {
     val title = row.getAs[String]("token")
@@ -93,7 +90,7 @@ object Wiktionary {
   // Heading extraction below here
 
   def getHeadings(
-      data: Dataset[WiktionaryRawEntry],
+      data: DataFrame,
       equalsCount: Integer
   ): DataFrame = {
     data
@@ -116,7 +113,7 @@ object Wiktionary {
       case Success(headings) => headings
       case Failure(e)        =>
         // Most likely means an issue with the filter clause above
-        log.error(s"Failed to parse document $text", e)
+        logger.error(s"Failed to parse document $text", e)
         Array()
     }
   }
@@ -125,7 +122,7 @@ object Wiktionary {
     Try(line.replaceAll(repeat("=", equalsCount), "").trim.toLowerCase) match {
       case Success(heading) => heading
       case Failure(e) =>
-        log.error(s"Failed to parse line $line", e)
+        logger.error(s"Failed to parse line $line", e)
         "ERROR"
     }
   }
@@ -139,7 +136,7 @@ object Wiktionary {
     )
 
   def extractSections(
-      data: Dataset[WiktionaryRawEntry],
+      data: DataFrame,
       sections: Array[String]
   ): DataFrame = {
     sections
