@@ -18,12 +18,6 @@ abstract class DefinitionsCleaningJob[T](source: String)
   override def run(inputPath: String, outputPath: String)(implicit
       spark: SparkSession
   ): Unit = {
-    log.info(s"Getting file from $inputPath")
-
-    implicit val spark: SparkSession = SparkSessionBuilder
-      .build(s"Clean $source")
-    log.info("Created spark session")
-
     log.info("Loading data")
     val raw = load(inputPath)
     log.info("Loaded data")

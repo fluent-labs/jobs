@@ -12,29 +12,32 @@ abstract class DefinitionsJob(
   @transient lazy val log: Logger =
     LogManager.getLogger("Definitions analysis job")
 
-  // Config variables from the job
-  val definitionsBucketPath: String =
-    sys.env.getOrElse("definitionsBucketPath", "s3://definitions/")
-  val version: String = sys.env.get("version") match {
-    case Some(v) => v
-    case None    => throw new IllegalArgumentException("No version provided")
-  }
-
   // Methods for subclasses to implement
   def run(inputPath: String, outputPath: String)(implicit
       spark: SparkSession
   ): Unit
 
-  // Values we calculated
-  val inputPath: String =
-    s"$definitionsBucketPath/$source/$version/$previousState/"
-  val outputPath: String =
-    s"$definitionsBucketPath/$source/$version/$nextState/}"
-
   def main(args: Array[String]): Unit = {
+    val (definitionsBucketPath, version) = args match {
+      case Array(path, version) => (path, version)
+      case _ =>
+        throw new IllegalArgumentException(
+          "Invalid arguments, require bucket path and version"
+        )
+    }
+    log.info(
+      s"Running with arguments bucket path: $definitionsBucketPath and version: $version"
+    )
+
     implicit val spark: SparkSession = SparkSessionBuilder
       .build(s"$source $nextState job")
     log.info("Created spark session")
+
+    // Values we calculated
+    val inputPath: String =
+      s"$definitionsBucketPath/$source/$version/$previousState/"
+    val outputPath: String =
+      s"$definitionsBucketPath/$source/$version/$nextState/}"
 
     run(inputPath, outputPath)
   }
