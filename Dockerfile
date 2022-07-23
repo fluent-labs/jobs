@@ -21,7 +21,8 @@ RUN apk add --no-cache bash=5.1.16-r0
 RUN apk add --no-cache wget=1.21.2-r2 tar=1.34-r0
 
 # Used to upload the spark job to s3
-RUN wget -qO - --no-check-certificate "https://github.com/s3tools/s3cmd/releases/download/v2.2.0/s3cmd-2.2.0.tar.gz" |  tar xz -C $INSTALL_DIR && \
+RUN apk add --no-cache python3=3.9.7-r4 && \
+  wget -qO - --no-check-certificate "https://github.com/s3tools/s3cmd/releases/download/v2.2.0/s3cmd-2.2.0.tar.gz" |  tar xz -C $INSTALL_DIR && \
   cd $S3CMD_DIR && \
   python setup.py install
 
