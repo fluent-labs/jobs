@@ -66,7 +66,9 @@ class SimpleWiktionaryTest extends AnyFunSpec {
       )
     )
     assert(
-      entryParsed.pronunciation === "=\n* {{IPA|/ɪz/}}\n* {{SAMPA|/Iz/}}\n* {{audio|en-us-is.ogg|Audio (US)}}\n\n"
+      entryParsed.pronunciation === List(
+        "=\n* {{IPA|/ɪz/}}\n* {{SAMPA|/Iz/}}\n* {{audio|en-us-is.ogg|Audio (US)}}\n\n"
+      )
     )
     assert(
       entryParsed.related === Array(
