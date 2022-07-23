@@ -1,15 +1,14 @@
 package io.fluentlabs.jobs.definitions
 
-import io.fluentlabs.content.types.external.definition.DefinitionEntry
-import io.fluentlabs.content.types.internal.definition.DefinitionSource.DefinitionSource
 import io.fluentlabs.jobs.SparkSessionBuilder
+import io.fluentlabs.jobs.definitions.DefinitionSource.DefinitionSource
 import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.{Dataset, SparkSession}
 
 import scala.reflect.runtime.universe.TypeTag
 
 // Typetag needed to tell spark how to encode as a dataset
-abstract class DefinitionsParsingJob[T <: DefinitionEntry: TypeTag](
+abstract class DefinitionsParsingJob[T](
     s3BasePath: String,
     defaultBackupFileName: String,
     source: DefinitionSource

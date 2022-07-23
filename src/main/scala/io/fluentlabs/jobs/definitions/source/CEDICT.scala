@@ -1,12 +1,18 @@
 package io.fluentlabs.jobs.definitions.source
 
-import io.fluentlabs.content.types.external.definition.cedict.CEDICTDefinitionEntry
-import io.fluentlabs.content.types.internal.definition.DefinitionSource
-import io.fluentlabs.jobs.definitions.DefinitionsParsingJob
+import io.fluentlabs.jobs.definitions.{DefinitionSource, DefinitionsParsingJob}
 import org.apache.spark.sql.{Dataset, SparkSession}
 
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
+
+case class CEDICTDefinitionEntry(
+    subdefinitions: List[String],
+    pinyin: String,
+    simplified: String,
+    traditional: String,
+    token: String
+)
 
 object CEDICT
     extends DefinitionsParsingJob[CEDICTDefinitionEntry](

@@ -1,8 +1,6 @@
 package io.fluentlabs.jobs.definitions.source
-
-import io.fluentlabs.content.types.external.definition.wiktionary.SimpleWiktionaryDefinitionEntry
-import io.fluentlabs.content.types.internal.definition.DefinitionSource
 import io.fluentlabs.jobs.definitions.{
+  DefinitionSource,
   DefinitionsParsingJob,
   Wiktionary,
   WiktionaryRawEntry
@@ -12,6 +10,27 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Column, DataFrame, Dataset, SparkSession}
 
 import scala.collection.immutable.ArraySeq
+
+case class SimpleWiktionaryDefinitionEntry(
+    pronunciation: String,
+    tag: Option[String],
+    examples: Option[List[String]],
+    token: String,
+    definition: String,
+    tagRaw: String,
+    ipa: String,
+    subdefinitions: List[String],
+    // Nice extras
+    antonyms: List[String],
+    homonyms: List[String],
+    homophones: List[String],
+    notes: List[String],
+    otherSpellings: List[String],
+    pronunciationRaw: List[String],
+    related: List[String],
+    synonyms: List[String],
+    usage: List[String]
+)
 
 object SimpleWiktionary
     extends DefinitionsParsingJob[SimpleWiktionaryDefinitionEntry](
