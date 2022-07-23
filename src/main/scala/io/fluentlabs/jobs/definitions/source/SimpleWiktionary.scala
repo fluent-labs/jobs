@@ -1,8 +1,6 @@
 package io.fluentlabs.jobs.definitions.source
-
-import io.fluentlabs.content.types.external.definition.wiktionary.SimpleWiktionaryDefinitionEntry
-import io.fluentlabs.content.types.internal.definition.DefinitionSource
 import io.fluentlabs.jobs.definitions.{
+  DefinitionSource,
   DefinitionsParsingJob,
   Wiktionary,
   WiktionaryRawEntry
@@ -12,6 +10,25 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Column, DataFrame, Dataset, SparkSession}
 
 import scala.collection.immutable.ArraySeq
+
+case class SimpleWiktionaryDefinitionEntry(
+    pronunciation: List[String],
+    tag: Option[String],
+    examples: Option[List[String]],
+    token: String,
+    definition: String,
+    ipa: String,
+    subdefinitions: List[String],
+    // Nice extras
+    antonyms: List[String],
+    homonyms: List[String],
+    homophones: List[String],
+    notes: List[String],
+    otherSpellings: List[String],
+    related: List[String],
+    synonyms: List[String],
+    usage: List[String]
+)
 
 object SimpleWiktionary
     extends DefinitionsParsingJob[SimpleWiktionaryDefinitionEntry](
@@ -136,13 +153,12 @@ object SimpleWiktionary
         Wiktionary.regexp_extract_all(subdefinitionsRegex, 1)(col("definition"))
       )
       .withColumn(
-        "examplesRaw",
+        "examples",
         Wiktionary.regexp_extract_all(examplesRegex, 1)(col("definition"))
       )
 
     addOptionalSections(splitDefinitions)
       .drop("text")
-      .withColumnRenamed("pronunciation", "pronunciationRaw")
       .as[SimpleWiktionaryDefinitionEntry]
   }
 
@@ -157,7 +173,7 @@ object SimpleWiktionary
       .filter("col not like ''")
       .drop(partOfSpeechCols)
       .withColumnRenamed("col", "definition")
-      .withColumn("tagRaw", mapPartOfSpeech(col("pos")))
+      .withColumn("tag", mapPartOfSpeech(col("pos")))
       .drop("pos")
 
   val subsectionsInverted: Map[String, Set[String]] = subsectionMap

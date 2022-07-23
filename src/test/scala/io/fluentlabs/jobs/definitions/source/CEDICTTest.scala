@@ -1,6 +1,5 @@
 package io.fluentlabs.jobs.definitions.source
 
-import io.fluentlabs.content.types.external.definition.cedict.CEDICTDefinitionEntry
 import org.scalatest.funspec.AnyFunSpec
 
 class CEDICTTest extends AnyFunSpec {

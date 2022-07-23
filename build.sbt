@@ -32,10 +32,6 @@ lazy val compilerOptions = Seq(
 )
 
 lazy val settings = Seq(
-  githubTokenSource := TokenSource.Or(
-    TokenSource.Environment("GITHUB_TOKEN"),
-    TokenSource.GitConfig("github.token")
-  ),
   releaseVersionBump := sbtrelease.Version.Bump.Bugfix,
   publishConfiguration := publishConfiguration.value.withOverwrite(true),
   publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(
@@ -48,7 +44,6 @@ lazy val settings = Seq(
 
 lazy val dependencies = Seq(
   Dependencies.scalaTest % Test,
-  Dependencies.content,
   Dependencies.sparkCore % "provided",
   Dependencies.sparkSql % "provided",
   Dependencies.sparkXml,
@@ -71,8 +66,6 @@ lazy val forcedDependencies = Seq(
 
 lazy val assemblySettings = Seq(
   organization := "io.fluentlabs",
-  githubOwner := "fluent-labs",
-  githubRepository := "jobs",
   // Used for building jobs fat jars
   assembly / assemblyJarName := name.value + ".jar",
   assembly / assemblyMergeStrategy := {
