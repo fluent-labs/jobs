@@ -161,7 +161,6 @@ object SimpleWiktionary
 
     addOptionalSections(splitDefinitions)
       .drop("text")
-      .withColumnRenamed("pronunciation", "pronunciationRaw")
       .as[SimpleWiktionaryDefinitionEntry]
   }
 
