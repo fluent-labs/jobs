@@ -16,9 +16,7 @@ class WiktionaryTest extends AnyFunSpec {
       pattern: String,
       index: Integer
   ): List[String] = {
-    val allMatches =
-      for (m <- pattern.r.findAllMatchIn(data)) yield m.group(index)
-    allMatches.toList
+    pattern.r.findAllMatchIn(data).map(_.group(1)).toList
   }
 
   describe("can correctly generate regexes") {
@@ -75,7 +73,8 @@ class WiktionaryTest extends AnyFunSpec {
 
     it("on the happy path") {
       val regex = Wiktionary.headingRegex(2)
-      val items = regex_extract_all(text, regex, 1)
+      val items =
+        text.split("\n").flatMap(regex.r.findFirstMatchIn(_)).map(_.group(1))
       assert(
         items sameElements Array(
           "this is a heading",

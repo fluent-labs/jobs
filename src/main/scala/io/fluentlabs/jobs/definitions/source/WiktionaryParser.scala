@@ -60,7 +60,7 @@ trait WiktionaryParser {
   val doubleEqualsSign = "=="
   val tripleEqualsSign = "==="
   val optionalWhiteSpace = " *"
-  val anythingButEqualsSign = "([^=])*"
+  val anythingButEqualsSign = "([^=]*)"
   val lazyMatchAnything = "(.*?)"
   val spaceOrNewline = "[ |\n]+"
   val nextSection = s"(?>== *[A-Za-z0-9]+ *==$spaceOrNewline)"
