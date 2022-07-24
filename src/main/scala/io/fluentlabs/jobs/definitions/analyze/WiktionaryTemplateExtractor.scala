@@ -5,6 +5,9 @@ import io.fluentlabs.jobs.definitions.source.WiktionaryParser
 import org.apache.spark.sql.functions.{arrays_zip, col, count, explode, first}
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 
+case class WiktionaryTemplateInstance(name: String, arguments: String)
+case class WiktionaryTemplate(name: String, count: BigInt, example: String)
+
 class WiktionaryTemplateExtractor(source: String)
     extends DefinitionsAnalysisJob(source)
     with WiktionaryParser {
@@ -20,9 +23,6 @@ class WiktionaryTemplateExtractor(source: String)
   ): Unit =
     extractTemplateCount(extractTemplateInstances(data)).write
       .csv(s"$outputPath/templates")
-
-  case class WiktionaryTemplateInstance(name: String, arguments: String)
-  case class WiktionaryTemplate(name: String, count: BigInt, example: String)
 
   def extractTemplateInstances(
       data: DataFrame
