@@ -50,11 +50,9 @@ class WiktionaryTemplateExtractor(source: String)
     data
       .select(posexplode(regexp_extract_templates(col("text"))))
       .select(
-        element_at(col("col"), 1),
-        element_at(col("col"), 2)
+        element_at(col("col"), 1).alias("name"),
+        element_at(col("col"), 2).alias("arguments")
       ) // Columns start at 1 not 0
-      .withColumnRenamed("element_at(col, 1)", "name")
-      .withColumnRenamed("element_at(col, 2)", "arguments")
       .sort("name")
       .as[WiktionaryTemplateInstance]
   }
