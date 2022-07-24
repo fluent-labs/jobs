@@ -54,13 +54,15 @@ trait WiktionaryParser {
    * contents
    */
 
+  val beginningOfLine = "^"
   val caseInsensitiveFlag = "(?i)"
   val periodMatchesNewlineFlag = "(?s)"
   val oneOrMoreEqualsSign = "=+"
   val doubleEqualsSign = "=="
   val tripleEqualsSign = "==="
   val optionalWhiteSpace = " *"
-  val anythingButEqualsSign = "([^=]*)"
+  val anythingButEqualsSign = "[^=]*"
+  val anythingButEqualsSignCapturing = "([^=]*)"
   val lazyMatchAnything = "(.*?)"
   val spaceOrNewline = "[ |\n]+"
   val nextSection = s"(?>== *[A-Za-z0-9]+ *==$spaceOrNewline)"
@@ -77,10 +79,10 @@ trait WiktionaryParser {
     *   A regular expression letting you find all heading.
     */
   def headingRegex(level: Int): String =
-    RegexHelper.repeat(
+    beginningOfLine + RegexHelper.repeat(
       "=",
       level
-    ) + optionalWhiteSpace + anythingButEqualsSign + optionalWhiteSpace + RegexHelper
+    ) + optionalWhiteSpace + anythingButEqualsSignCapturing + optionalWhiteSpace + RegexHelper
       .repeat(
         "=",
         level

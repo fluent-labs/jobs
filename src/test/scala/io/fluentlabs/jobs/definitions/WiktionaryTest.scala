@@ -67,18 +67,20 @@ class WiktionaryTest extends AnyFunSpec {
         |another garbage thing
         |== This is another heading ==
         |= heading level that doesn't exist =
-        |== uneven heading ===
         |=== uneven in a different way ==
         |""".stripMargin
 
     it("on the happy path") {
       val regex = Wiktionary.headingRegex(2)
       val items =
-        text.split("\n").flatMap(regex.r.findFirstMatchIn(_)).map(_.group(1))
+        text
+          .split("\n")
+          .flatMap(regex.r.findFirstMatchIn(_))
+          .map(_.group(1).trim)
       assert(
         items sameElements Array(
-          "this is a heading",
-          "this is another heading"
+          "This is a heading",
+          "This is another heading"
         )
       )
     }
