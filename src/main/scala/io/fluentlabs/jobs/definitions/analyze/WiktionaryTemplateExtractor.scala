@@ -1,8 +1,11 @@
 package io.fluentlabs.jobs.definitions.analyze
 
 import io.fluentlabs.jobs.definitions.source.WiktionaryParser
-import io.fluentlabs.jobs.definitions.{WiktionaryTemplate, WiktionaryTemplateInstance}
-import org.apache.spark.sql.functions.{arrays_zip, col, element_at, explode, expr}
+import io.fluentlabs.jobs.definitions.{
+  WiktionaryTemplate,
+  WiktionaryTemplateInstance
+}
+import org.apache.spark.sql.functions.{arrays_zip, col, explode}
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 
 class WiktionaryTemplateExtractor(source: String)
@@ -43,8 +46,8 @@ class WiktionaryTemplateExtractor(source: String)
     import spark.implicits._
 
     data
-      .withColumn("name", expr(s"regexp_extract_all(text, $templateRegex, 1)"))
-      .withColumn("arguments", expr(s"regexp_extract_all(text, $templateRegex, 2)"))
+      .withColumn("name", regexp_extract_all("text", templateRegex, 1))
+      .withColumn("arguments", regexp_extract_all("text", templateRegex, 2))
       .select(
         explode(arrays_zip(col("name"), col("arguments")))
           .alias("template")
