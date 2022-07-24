@@ -1,12 +1,12 @@
 package io.fluentlabs.jobs.definitions.analyze
 
+import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import io.fluentlabs.jobs.definitions.source.WiktionaryParser
-import io.fluentlabs.jobs.definitions.{
-  WiktionaryTemplate,
-  WiktionaryTemplateInstance
-}
-import org.apache.spark.sql.functions.{arrays_zip, col, element_at, explode}
+import org.apache.spark.sql.functions.{arrays_zip, col, count, explode, first}
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+
+case class WiktionaryTemplateInstance(name: String, arguments: String)
+case class WiktionaryTemplate(name: String, count: BigInt, example: String)
 
 class WiktionaryTemplateExtractor(source: String)
     extends DefinitionsAnalysisJob(source)
@@ -20,25 +20,9 @@ class WiktionaryTemplateExtractor(source: String)
 
   def analyze(data: DataFrame, outputPath: String)(implicit
       spark: SparkSession
-  ): Unit = {
-    val templateInstances =
-      extractTemplateInstances(data).cache()
-    templateInstances.write.csv(s"$outputPath/instances.csv")
-
-    val templates = extractTemplateCount(templateInstances)
-    templates.write.csv(s"$outputPath/templates.csv")
-  }
-
-  val leftBrace = "\\{"
-  val rightBrace = "\\}"
-  val pipe = "\\|"
-  val notPipeCaptureGroup: String = "([^" + pipe + rightBrace + "]+)"
-  val notRightBraceCaptureGroup: String =
-    "(" + pipe + "[^" + rightBrace + "]*)?"
-
-  // {{a|b}}
-  val templateRegex: String =
-    leftBrace + leftBrace + notPipeCaptureGroup + notRightBraceCaptureGroup + rightBrace + rightBrace
+  ): Unit =
+    extractTemplateCount(extractTemplateInstances(data)).write
+      .csv(s"$outputPath/templates")
 
   def extractTemplateInstances(
       data: DataFrame
@@ -48,18 +32,17 @@ class WiktionaryTemplateExtractor(source: String)
     data
       .withColumn(
         "name",
-        regexp_extract_all(templateRegex, 1)(col("text"))
+        RegexHelper.regexp_extract_all("text", templateRegex, 1)
       )
       .withColumn(
         "arguments",
-        regexp_extract_all(templateRegex, 2)(col("text"))
+        RegexHelper.regexp_extract_all("text", templateRegex, 2)
       )
       .select(
         explode(arrays_zip(col("name"), col("arguments")))
           .alias("template")
       )
       .select(col("template.*"))
-      .sort("name")
       .as[WiktionaryTemplateInstance]
   }
 
@@ -68,6 +51,13 @@ class WiktionaryTemplateExtractor(source: String)
   )(implicit spark: SparkSession): Dataset[WiktionaryTemplate] = {
     import spark.implicits._
 
-    data.groupBy("name").count().sort(col("count").desc).as[WiktionaryTemplate]
+    data
+      .groupBy("name")
+      .agg(
+        count("*").alias("count"),
+        first("arguments").alias("example")
+      )
+      .sort(col("count").desc)
+      .as[WiktionaryTemplate]
   }
 }

@@ -1,4 +1,4 @@
-package io.fluentlabs.jobs.definitions.exploration
+package io.fluentlabs.jobs.definitions.analyze
 
 import io.fluentlabs.jobs.definitions.WiktionaryRawText
 import io.fluentlabs.jobs.definitions.analyze.WiktionaryTemplateExtractor
