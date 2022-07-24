@@ -29,9 +29,9 @@ object CEDICT extends DefinitionsCleaningJob[CEDICTDefinitionEntry]("cedict") {
       .where(!col("entry").startsWith("#"))
       .select(
         regexp_extract(col("entry"), lineRegex, 1).alias("traditional"),
-        regexp_extract(col("entry"), lineRegex, 1).alias("simplified"),
-        regexp_extract(col("entry"), lineRegex, 1).alias("pinyin"),
-        regexp_extract(col("entry"), lineRegex, 1).alias("definitions")
+        regexp_extract(col("entry"), lineRegex, 2).alias("simplified"),
+        regexp_extract(col("entry"), lineRegex, 3).alias("pinyin"),
+        regexp_extract(col("entry"), lineRegex, 4).alias("definitions")
       )
       .withColumn("token", col("traditional"))
       .withColumn("subdefinitions", split(col("definitions"), "/"))
