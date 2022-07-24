@@ -3,11 +3,8 @@ package io.fluentlabs.jobs.definitions.source
 import com.databricks.spark.xml.XmlDataFrameReader
 import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import org.apache.log4j.{LogManager, Logger}
-import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.functions.{col, explode, regexp_extract, udf}
+import org.apache.spark.sql.functions.{col, explode, regexp_extract}
 import org.apache.spark.sql.{Column, DataFrame, Row, SparkSession}
-
-import scala.util.{Failure, Success, Try}
 
 trait WiktionaryParser {
   @transient lazy val logger: Logger =
@@ -122,50 +119,10 @@ trait WiktionaryParser {
   def subSectionRegex(sectionName: String): String =
     nLevelSectionRegex(sectionName, 3)
 
-  // Heading extraction below here
-
-  def getHeadings(
-      data: DataFrame,
-      equalsCount: Integer
-  ): DataFrame = {
-    data
-      .select(explode(getHeadingsUDF(equalsCount)(col("text"))))
-      .distinct()
-      .coalesce(1)
-      .sort(col("col"))
-  }
-
-  def getHeadingsUDF(equalsCount: Int): UserDefinedFunction =
-    udf((text: String) => getHeadingsFromDocument(text, equalsCount))
-
-  def getHeadingsFromDocument(text: String, equalsCount: Int): Array[String] = {
-    Try(
-      text.linesIterator
-        .filter(line => line.matches(headingRegex(equalsCount)))
-        .map(line => getHeadingFromLine(line, equalsCount))
-        .toArray
-    ) match {
-      case Success(headings) => headings
-      case Failure(e)        =>
-        // Most likely means an issue with the filter clause above
-        logger.error(s"Failed to parse document $text", e)
-        Array()
-    }
-  }
-
-  def getHeadingFromLine(line: String, equalsCount: Int): String = {
-    Try(
-      line.replaceAll(RegexHelper.repeat("=", equalsCount), "").trim.toLowerCase
-    ) match {
-      case Success(heading) => heading
-      case Failure(e) =>
-        logger.error(s"Failed to parse line $line", e)
-        "ERROR"
-    }
-  }
-
   // Section extraction down here
 
+  def extractSection(name: String, level: Integer): Column =
+    regexp_extract(col("text"), nLevelSectionRegex(name, level), 1)
   def extractSection(name: String): Column =
     regexp_extract(col("text"), sectionRegex(name), 1)
   def extractSubSection(name: String): Column =

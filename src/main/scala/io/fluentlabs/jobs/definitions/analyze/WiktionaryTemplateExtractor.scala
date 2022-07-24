@@ -6,7 +6,7 @@ import io.fluentlabs.jobs.definitions.{
   WiktionaryTemplate,
   WiktionaryTemplateInstance
 }
-import org.apache.spark.sql.functions.{arrays_zip, col, explode}
+import org.apache.spark.sql.functions.{arrays_zip, col, count, explode, first}
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 
 class WiktionaryTemplateExtractor(source: String)
@@ -21,14 +21,12 @@ class WiktionaryTemplateExtractor(source: String)
 
   def analyze(data: DataFrame, outputPath: String)(implicit
       spark: SparkSession
-  ): Unit = {
-    val templateInstances =
-      extractTemplateInstances(data).cache()
-    templateInstances.write.csv(s"$outputPath/instances.csv")
+  ): Unit =
+    extractTemplateCount(extractTemplateInstances(data)).write
+      .csv(s"$outputPath/templates")
 
-    val templates = extractTemplateCount(templateInstances)
-    templates.write.csv(s"$outputPath/templates.csv")
-  }
+  case class WiktionaryTemplateInstance(name: String, arguments: String)
+  case class WiktionaryTemplate(name: String, count: BigInt, example: String)
 
   def extractTemplateInstances(
       data: DataFrame
@@ -59,7 +57,10 @@ class WiktionaryTemplateExtractor(source: String)
 
     data
       .groupBy("name")
-      .count()
+      .agg(
+        count("*").alias("count"),
+        first("arguments").alias("example")
+      )
       .sort(col("count").desc)
       .as[WiktionaryTemplate]
   }

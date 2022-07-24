@@ -7,7 +7,3 @@ package io.fluentlabs.jobs.definitions
 // Common
 case class WiktionaryRawEntry(id: Long, token: String, text: String)
 case class WiktionaryRawText(text: String)
-
-// Template job specific
-case class WiktionaryTemplateInstance(name: String, arguments: String)
-case class WiktionaryTemplate(name: String, count: BigInt)
