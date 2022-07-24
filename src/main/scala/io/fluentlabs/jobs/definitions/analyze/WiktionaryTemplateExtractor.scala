@@ -47,22 +47,18 @@ class WiktionaryTemplateExtractor(source: String)
 
     data
       .withColumn(
-        "templateName",
+        "name",
         regexp_extract_all(templateRegex, 1)(col("text"))
       )
       .withColumn(
-        "templateVariables",
+        "arguments",
         regexp_extract_all(templateRegex, 2)(col("text"))
       )
       .select(
         explode(arrays_zip(col("templateName"), col("templateVariables")))
           .alias("template")
       )
-      .select(
-        // Columns start at 1 not 0
-        element_at(col("template"), 1).alias("name"),
-        element_at(col("template"), 2).alias("arguments")
-      )
+      .select(col("template.*"))
       .sort("name")
       .as[WiktionaryTemplateInstance]
   }
