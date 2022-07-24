@@ -1,8 +1,11 @@
 package io.fluentlabs.jobs.definitions
 
+import io.fluentlabs.jobs.definitions.source.WiktionaryParser
 import org.scalatest.funspec.AnyFunSpec
 
 class WiktionaryTest extends AnyFunSpec {
+  object Wiktionary extends WiktionaryParser
+
   describe("can correctly generate regexes") {
     it("can repeat a pattern") {
       assert(Wiktionary.repeat("=", 6) == "======")
@@ -54,7 +57,10 @@ class WiktionaryTest extends AnyFunSpec {
       }
       it("and returns error if there is bad input") {
         assert(
-          Wiktionary.getHeadingFromLine(null, 2) == "ERROR" // scalastyle:ignore
+          Wiktionary.getHeadingFromLine(
+            null,
+            2
+          ) == "ERROR" // scalastyle:ignore
         )
       }
     }

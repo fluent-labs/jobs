@@ -3,6 +3,27 @@ name: Scala code test
 on: [pull_request]
 
 jobs:
+  build:
+    name: Confirm that the fat jar builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.0.2
+
+      - name: Set up JDK 15
+        uses: actions/setup-java@v3.4.1
+        with:
+          java-version: 15.0.1
+          distribution: 'zulu'
+
+      - name: Cache sbt packages
+        uses: actions/cache@v3.0.5
+        with:
+          key: sbt_cache
+          path: ~/.cache/coursier/v1/
+
+      - name: Build jar
+        run: sbt assembly
+  
   test:
     runs-on: ubuntu-latest
     env:
@@ -13,7 +34,7 @@ jobs:
         fetch-depth: '2'
 
     - name: Set up JDK 15
-      uses: actions/setup-java@v3.4.0
+      uses: actions/setup-java@v3.4.1
       with:
         java-version: 15.0.1
         distribution: 'zulu'

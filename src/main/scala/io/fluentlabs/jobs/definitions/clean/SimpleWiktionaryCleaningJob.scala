@@ -1,24 +1,38 @@
-package io.fluentlabs.jobs.definitions.source
+package io.fluentlabs.jobs.definitions.clean
 
-import io.fluentlabs.content.types.external.definition.wiktionary.SimpleWiktionaryDefinitionEntry
-import io.fluentlabs.content.types.internal.definition.DefinitionSource
-import io.fluentlabs.jobs.definitions.{
-  DefinitionsParsingJob,
-  Wiktionary,
-  WiktionaryRawEntry
-}
+import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Column, DataFrame, Dataset, SparkSession}
 
 import scala.collection.immutable.ArraySeq
 
-object SimpleWiktionary
-    extends DefinitionsParsingJob[SimpleWiktionaryDefinitionEntry](
-      "s3a://foreign-language-reader-content/definitions/wiktionary/",
-      "simplewiktionary-20200301-pages-meta-current.xml",
-      DefinitionSource.WIKTIONARY_SIMPLE_ENGLISH
+case class SimpleWiktionaryDefinitionEntry(
+    pronunciation: List[String],
+    tag: Option[String],
+    examples: Option[List[String]],
+    token: String,
+    definition: String,
+    ipa: String,
+    subdefinitions: List[String],
+    // Nice extras
+    antonyms: List[String],
+    homonyms: List[String],
+    homophones: List[String],
+    notes: List[String],
+    otherSpellings: List[String],
+    related: List[String],
+    synonyms: List[String],
+    usage: List[String]
+)
+
+object SimpleWiktionaryCleaningJob
+    extends WiktionaryCleaningJob[SimpleWiktionaryDefinitionEntry](
+      "simplewiktionary"
     ) {
+  @transient override lazy val logger: Logger =
+    LogManager.getLogger("Simple Wiktionary")
+
   val metaSections = List("pronunciation", "usage", "usage notes")
 
   // Parts of speech set here: http://www.lrec-conf.org/proceedings/lrec2012/pdf/274_Paper.pdf
@@ -120,29 +134,25 @@ object SimpleWiktionary
     subdefinitionMarker + optionalSpace + "([^\\n:]*)" + newline
   val examplesRegex: String = examplesMarker + optionalSpace + "([^\\n]*)"
 
-  override def loadFromPath(path: String)(implicit
-      spark: SparkSession
-  ): Dataset[SimpleWiktionaryDefinitionEntry] =
-    parseSimple(Wiktionary.loadWiktionaryDump(path))
-
-  def parseSimple(
-      data: Dataset[WiktionaryRawEntry]
+  override def clean(
+      data: DataFrame
   )(implicit spark: SparkSession): Dataset[SimpleWiktionaryDefinitionEntry] = {
     import spark.implicits._
     val splitDefinitions = splitWordsByPartOfSpeech(data)
       .withColumn("ipa", regexp_extract(col("text"), ipaRegex, 1))
       .withColumn(
         "subdefinitions",
-        Wiktionary.regexp_extract_all(subdefinitionsRegex, 1)(col("definition"))
+        regexp_extract_all(subdefinitionsRegex, 1)(
+          col("definition")
+        )
       )
       .withColumn(
-        "examplesRaw",
-        Wiktionary.regexp_extract_all(examplesRegex, 1)(col("definition"))
+        "examples",
+        regexp_extract_all(examplesRegex, 1)(col("definition"))
       )
 
     addOptionalSections(splitDefinitions)
       .drop("text")
-      .withColumnRenamed("pronunciation", "pronunciationRaw")
       .as[SimpleWiktionaryDefinitionEntry]
   }
 
@@ -150,14 +160,13 @@ object SimpleWiktionary
     mapWiktionaryPartOfSpeechToDomainPartOfSpeech(partsOfSpeech(index))
   )
 
-  def splitWordsByPartOfSpeech(data: Dataset[WiktionaryRawEntry]): DataFrame =
-    Wiktionary
-      .extractSections(data, SimpleWiktionary.partsOfSpeech)
+  def splitWordsByPartOfSpeech(data: DataFrame): DataFrame =
+    extractSections(data, partsOfSpeech)
       .select(col("token"), col("text"), posexplode(partOfSpeechCols))
       .filter("col not like ''")
       .drop(partOfSpeechCols)
       .withColumnRenamed("col", "definition")
-      .withColumn("tagRaw", mapPartOfSpeech(col("pos")))
+      .withColumn("tag", mapPartOfSpeech(col("pos")))
       .drop("pos")
 
   val subsectionsInverted: Map[String, Set[String]] = subsectionMap
@@ -184,7 +193,7 @@ object SimpleWiktionary
 
   def addOptionalSections(data: DataFrame): DataFrame = {
     val extracted =
-      Wiktionary.extractSubsections(data, subsectionMap.keySet.toArray)
+      extractSubsections(data, subsectionMap.keySet.toArray)
     subsectionsToCombine.foldLeft(extracted)((acc, subsection) => {
       val (subsectionName, subsectionColumns) = subsection
       val columnsToDrop: Array[String] =

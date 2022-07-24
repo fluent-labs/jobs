@@ -1,12 +1,15 @@
 package io.fluentlabs.jobs.definitions.source
 
-import io.fluentlabs.content.types.external.definition.wiktionary.SimpleWiktionaryDefinitionEntry
-import io.fluentlabs.content.types.internal.word.PartOfSpeech
 import io.fluentlabs.jobs.definitions.WiktionaryRawEntry
+import io.fluentlabs.jobs.definitions.clean.{
+  SimpleWiktionaryCleaningJob,
+  SimpleWiktionaryDefinitionEntry
+}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.funspec.AnyFunSpec
 
 class SimpleWiktionaryTest extends AnyFunSpec {
+
   lazy val spark: SparkSession = {
     SparkSession
       .builder()
@@ -36,7 +39,9 @@ class SimpleWiktionaryTest extends AnyFunSpec {
 
     val entryraw = WiktionaryRawEntry(42, "Is", text)
     val entryParsed: SimpleWiktionaryDefinitionEntry =
-      SimpleWiktionary.parseSimple(Seq(entryraw).toDS())(spark).first()
+      SimpleWiktionaryCleaningJob
+        .clean(Seq(entryraw).toDF())(spark)
+        .first()
 
     val definition =
       """
@@ -52,7 +57,7 @@ class SimpleWiktionaryTest extends AnyFunSpec {
 
     assert(entryParsed.token == "Is")
     assert(entryParsed.definition == definition)
-    assert(entryParsed.tag.contains(PartOfSpeech.VERB))
+    assert(entryParsed.tag.contains("Verb"))
     assert(entryParsed.ipa == "ɪz")
     assert(
       entryParsed.subdefinitions === List(
@@ -68,7 +73,9 @@ class SimpleWiktionaryTest extends AnyFunSpec {
       )
     )
     assert(
-      entryParsed.pronunciation === "=\n* {{IPA|/ɪz/}}\n* {{SAMPA|/Iz/}}\n* {{audio|en-us-is.ogg|Audio (US)}}\n\n"
+      entryParsed.pronunciation === List(
+        "=\n* {{IPA|/ɪz/}}\n* {{SAMPA|/Iz/}}\n* {{audio|en-us-is.ogg|Audio (US)}}\n\n"
+      )
     )
     assert(
       entryParsed.related === Array(

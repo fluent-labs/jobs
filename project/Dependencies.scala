@@ -6,7 +6,6 @@ object Dependencies {
   val sparkVersion = "3.3.0"
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.12"
-  val content = "io.fluentlabs" %% "content" % "1.0.17"
 
   val sparkCore = "org.apache.spark" %% "spark-core" % sparkVersion
   val sparkSql = "org.apache.spark" %% "spark-sql" % sparkVersion
@@ -15,7 +14,7 @@ object Dependencies {
   val hadoop = "org.apache.hadoop" % "hadoop-common" % hadoopVersion
   val hadoopClient = "org.apache.hadoop" % "hadoop-client" % hadoopVersion
   val hadoopAWS = "org.apache.hadoop" % "hadoop-aws" % hadoopVersion
-  val awsJavaSDK = "com.amazonaws" % "aws-java-sdk" % "1.12.257"
+  val awsJavaSDK = "com.amazonaws" % "aws-java-sdk" % "1.12.267"
 
   // Security related dependency upgrades below here
   val jacksonScala =
