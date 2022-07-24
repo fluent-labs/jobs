@@ -1,5 +1,6 @@
 package io.fluentlabs.jobs.definitions
 
+import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import io.fluentlabs.jobs.definitions.source.WiktionaryParser
 import org.scalatest.funspec.AnyFunSpec
 
@@ -8,7 +9,7 @@ class WiktionaryTest extends AnyFunSpec {
 
   describe("can correctly generate regexes") {
     it("can repeat a pattern") {
-      assert(Wiktionary.repeat("=", 6) == "======")
+      assert(RegexHelper.repeat("=", 6) == "======")
     }
 
     describe("for a heading of any size") {

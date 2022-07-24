@@ -2,10 +2,6 @@ package io.fluentlabs.jobs.definitions.analyze
 
 import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import io.fluentlabs.jobs.definitions.source.WiktionaryParser
-import io.fluentlabs.jobs.definitions.{
-  WiktionaryTemplate,
-  WiktionaryTemplateInstance
-}
 import org.apache.spark.sql.functions.{arrays_zip, col, count, explode, first}
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 

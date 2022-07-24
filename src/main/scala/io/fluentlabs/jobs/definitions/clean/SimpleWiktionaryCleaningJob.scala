@@ -1,5 +1,6 @@
 package io.fluentlabs.jobs.definitions.clean
 
+import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions._
@@ -142,11 +143,11 @@ object SimpleWiktionaryCleaningJob
       .withColumn("ipa", regexp_extract(col("text"), ipaRegex, 1))
       .withColumn(
         "subdefinitions",
-        regexp_extract_all("definition", subdefinitionsRegex, 1)
+        RegexHelper.regexp_extract_all("definition", subdefinitionsRegex, 1)
       )
       .withColumn(
         "examples",
-        regexp_extract_all("definition", examplesRegex, 1)
+        RegexHelper.regexp_extract_all("definition", examplesRegex, 1)
       )
 
     addOptionalSections(splitDefinitions)
