@@ -1,9 +1,10 @@
 package io.fluentlabs.jobs.definitions.source
 
 import com.databricks.spark.xml.XmlDataFrameReader
+import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.functions.{col, explode, expr, regexp_extract, udf}
+import org.apache.spark.sql.functions.{col, explode, regexp_extract, udf}
 import org.apache.spark.sql.{Column, DataFrame, Row, SparkSession}
 
 import scala.util.{Failure, Success, Try}
@@ -50,12 +51,11 @@ trait WiktionaryParser {
     metaArticleTitles.forall(prefix => !title.startsWith(prefix))
   }
 
-  // String.repeat is only implemented on some JVMs
-  // Removing this has burned me twice.
-  // Run the unit tests in the docker container before trying to remove it again.
-  def repeat(token: String, count: Int): String = {
-    (0 until count).map(_ => token).mkString
-  }
+  /*
+   * Handles sections
+   * == Name ==
+   * contents
+   */
 
   val caseInsensitiveFlag = "(?i)"
   val periodMatchesNewlineFlag = "(?s)"
@@ -63,29 +63,64 @@ trait WiktionaryParser {
   val doubleEqualsSign = "=="
   val tripleEqualsSign = "==="
   val optionalWhiteSpace = " *"
-  val anythingButEqualsSign = "[^=]*"
+  val anythingButEqualsSign = "([^=])*"
   val lazyMatchAnything = "(.*?)"
   val spaceOrNewline = "[ |\n]+"
   val nextSection = s"(?>== *[A-Za-z0-9]+ *==$spaceOrNewline)"
   val nextSectionOrEndOfFile = s"(?>$nextSection|\\Z)+"
 
-  def headingRegex(equalsCount: Int): String =
-    repeat(
+  /** A regex letting you find headings of a given size. Use this when you don't
+    * know what you're looking for, but instead want to get a sense of how the
+    * dump is structured.
+    *
+    * The first capture group is the name of the section.
+    * @param level
+    *   The heading level to look for.
+    * @return
+    *   A regular expression letting you find all heading.
+    */
+  def headingRegex(level: Int): String =
+    RegexHelper.repeat(
       "=",
-      equalsCount
-    ) + optionalWhiteSpace + anythingButEqualsSign + optionalWhiteSpace + repeat(
-      "=",
-      equalsCount
-    ) + anythingButEqualsSign // Needed or else outer equals will be ignored
+      level
+    ) + optionalWhiteSpace + anythingButEqualsSign + optionalWhiteSpace + RegexHelper
+      .repeat(
+        "=",
+        level
+      ) + anythingButEqualsSign // Needed or else outer equals will be ignored
   // Subtle but '== Test ==' will match '=== Test ===' at this point: '="== Test =="='
+
+  /** Matches everything within a wikimedia section, both the heading and the
+    * content. For example: '''
+    * ==Section==
+    * (text inside) '''
+    *
+    * Use this when you know exactly what you're looking for and just want to
+    * pull out the content.
+    *
+    * @param sectionName
+    *   The name of the section to pull out
+    * @param level
+    *   The heading level, with 2 meaning ==, 3 meaning ===, etc.
+    * @return
+    *   A regex you can use to pull this out.
+    */
+  def nLevelSectionRegex(sectionName: String, level: Integer): String =
+    periodMatchesNewlineFlag + caseInsensitiveFlag + RegexHelper.repeat(
+      "=",
+      level
+    ) + optionalWhiteSpace + sectionName + optionalWhiteSpace + RegexHelper
+      .repeat(
+        "=",
+        level
+      ) + lazyMatchAnything + nextSectionOrEndOfFile
 
   // == name ==
   def sectionRegex(sectionName: String): String =
-    periodMatchesNewlineFlag + caseInsensitiveFlag + doubleEqualsSign + optionalWhiteSpace + sectionName + optionalWhiteSpace + doubleEqualsSign + lazyMatchAnything + nextSectionOrEndOfFile
-
+    nLevelSectionRegex(sectionName, 2)
   // === name ===
   def subSectionRegex(sectionName: String): String =
-    periodMatchesNewlineFlag + caseInsensitiveFlag + tripleEqualsSign + optionalWhiteSpace + sectionName + optionalWhiteSpace + tripleEqualsSign + lazyMatchAnything + nextSectionOrEndOfFile
+    nLevelSectionRegex(sectionName, 3)
 
   // Heading extraction below here
 
@@ -119,7 +154,9 @@ trait WiktionaryParser {
   }
 
   def getHeadingFromLine(line: String, equalsCount: Int): String = {
-    Try(line.replaceAll(repeat("=", equalsCount), "").trim.toLowerCase) match {
+    Try(
+      line.replaceAll(RegexHelper.repeat("=", equalsCount), "").trim.toLowerCase
+    ) match {
       case Success(heading) => heading
       case Failure(e) =>
         logger.error(s"Failed to parse line $line", e)
@@ -154,20 +191,17 @@ trait WiktionaryParser {
     sections.foldLeft(data)((data, section) => extractSection(data, section))
   }
 
-  def regexp_extract_all(
-      column: String,
-      regex: String,
-      index: Integer
-  ): Column = {
-    val escapedRegex = regex
-      // Needed because spark consumes the escape characters before passing to java.util.regex.Pattern
-      // And then the pattern is unescaped
-      .replaceAll("\\{", "\\\\{")
-      .replaceAll("\\}", "\\\\}")
-      .replaceAll("\\(", "\\\\(")
-      .replaceAll("\\)", "\\\\)")
-    val pattern = s"regexp_extract_all($column, '$escapedRegex', $index)"
-    logger.info(s"Running regex pattern $pattern")
-    expr(pattern)
-  }
+  /*
+   * Handles templates which are basically macros
+   * eg. {{templateName|args}}
+   */
+
+  val notPipeCaptureGroup: String =
+    "([^" + RegexHelper.pipe + RegexHelper.rightBrace + "]+)"
+  val notRightBraceCaptureGroup: String =
+    "(" + RegexHelper.pipe + "[^" + RegexHelper.rightBrace + "]*)?"
+
+  // {{a|b}}
+  val templateRegex: String =
+    RegexHelper.leftBrace + RegexHelper.leftBrace + notPipeCaptureGroup + notRightBraceCaptureGroup + RegexHelper.rightBrace + RegexHelper.rightBrace
 }

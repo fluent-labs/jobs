@@ -1,5 +1,6 @@
 package io.fluentlabs.jobs.definitions.analyze
 
+import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import io.fluentlabs.jobs.definitions.source.WiktionaryParser
 import io.fluentlabs.jobs.definitions.{
   WiktionaryTemplate,
@@ -29,31 +30,25 @@ class WiktionaryTemplateExtractor(source: String)
     templates.write.csv(s"$outputPath/templates.csv")
   }
 
-  val leftBrace = "\\{"
-  val rightBrace = "\\}"
-  val pipe = "\\|"
-  val notPipeCaptureGroup: String = "([^" + pipe + rightBrace + "]+)"
-  val notRightBraceCaptureGroup: String =
-    "(" + pipe + "[^" + rightBrace + "]*)?"
-
-  // {{a|b}}
-  val templateRegex: String =
-    leftBrace + leftBrace + notPipeCaptureGroup + notRightBraceCaptureGroup + rightBrace + rightBrace
-
   def extractTemplateInstances(
       data: DataFrame
   )(implicit spark: SparkSession): Dataset[WiktionaryTemplateInstance] = {
     import spark.implicits._
 
     data
-      .withColumn("name", regexp_extract_all("text", templateRegex, 1))
-      .withColumn("arguments", regexp_extract_all("text", templateRegex, 2))
+      .withColumn(
+        "name",
+        RegexHelper.regexp_extract_all("text", templateRegex, 1)
+      )
+      .withColumn(
+        "arguments",
+        RegexHelper.regexp_extract_all("text", templateRegex, 2)
+      )
       .select(
         explode(arrays_zip(col("name"), col("arguments")))
           .alias("template")
       )
       .select(col("template.*"))
-      .sort("name")
       .as[WiktionaryTemplateInstance]
   }
 
