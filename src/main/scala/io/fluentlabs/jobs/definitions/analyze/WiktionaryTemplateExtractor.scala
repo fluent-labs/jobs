@@ -55,7 +55,7 @@ class WiktionaryTemplateExtractor(source: String)
         regexp_extract_all(templateRegex, 2)(col("text"))
       )
       .select(
-        explode(arrays_zip(col("templateName"), col("templateVariables")))
+        explode(arrays_zip(col("name"), col("arguments")))
           .alias("template")
       )
       .select(col("template.*"))
