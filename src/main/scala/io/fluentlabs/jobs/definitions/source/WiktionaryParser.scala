@@ -158,5 +158,16 @@ trait WiktionaryParser {
       column: String,
       regex: String,
       index: Integer
-  ): Column = expr(s"regexp_extract_all($column, '$regex', $index)")
+  ): Column = {
+    val escapedRegex = regex
+      // Needed because spark consumes the escape characters before passing to java.util.regex.Pattern
+      // And then the pattern is unescaped
+      .replaceAll("\\{", "\\\\{")
+      .replaceAll("\\}", "\\\\}")
+      .replaceAll("\\(", "\\\\(")
+      .replaceAll("\\)", "\\\\)")
+    val pattern = s"regexp_extract_all($column, '$escapedRegex', $index)"
+    logger.info(s"Running regex pattern $pattern")
+    expr(pattern)
+  }
 }
