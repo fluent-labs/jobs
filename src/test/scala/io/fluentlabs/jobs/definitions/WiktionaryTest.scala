@@ -7,6 +7,20 @@ import org.scalatest.funspec.AnyFunSpec
 class WiktionaryTest extends AnyFunSpec {
   object Wiktionary extends WiktionaryParser
 
+  /*
+   * Nearly everything in the Wiktionary object is regex, we don't need to bring up an entire spark context to test.
+   * Let's keep these tests fast.
+   */
+  def regex_extract_all(
+      data: String,
+      pattern: String,
+      index: Integer
+  ): List[String] = {
+    val allMatches =
+      for (m <- pattern.r.findAllMatchIn(data)) yield m.group(index)
+    allMatches.toList
+  }
+
   describe("can correctly generate regexes") {
     it("can repeat a pattern") {
       assert(RegexHelper.repeat("=", 6) == "======")
@@ -47,51 +61,27 @@ class WiktionaryTest extends AnyFunSpec {
     }
   }
 
-  describe("can get headings") {
-    describe("for a single line") {
-      it("on the happy path") {
-        val test = "== Single heading =="
-        assert(Wiktionary.getHeadingFromLine(test, 2) == "single heading")
-      }
-      it("without error if there is no heading") {
-        assert(Wiktionary.getHeadingFromLine("", 2) == "")
-      }
-      it("and returns error if there is bad input") {
-        assert(
-          Wiktionary.getHeadingFromLine(
-            null,
-            2
-          ) == "ERROR" // scalastyle:ignore
-        )
-      }
-    }
+  describe("can generate regex patterns for headings") {
+    val text =
+      """== This is a heading ==
+        |another document item
+        |=== subheading that should be ignored ===
+        |another garbage thing
+        |== This is another heading ==
+        |= heading level that doesn't exist =
+        |== uneven heading ===
+        |=== uneven in a different way ==
+        |""".stripMargin
 
-    describe("for a document") {
-      it("on the happy path") {
-        val text =
-          """== This is a heading ==
-            |another document item
-            |=== subheading that should be ignored ===
-            |another garbage thing
-            |== This is another heading ==
-            |= heading level that doesn't exist =
-            |== uneven heading ===
-            |=== uneven in a different way ==
-            |""".stripMargin
-        assert(
-          Wiktionary.getHeadingsFromDocument(text, 2) sameElements Array(
-            "this is a heading",
-            "this is another heading"
-          )
+    it("on the happy path") {
+      val regex = Wiktionary.headingRegex(2)
+      val items = regex_extract_all(text, regex, 1)
+      assert(
+        items sameElements Array(
+          "this is a heading",
+          "this is another heading"
         )
-      }
-      it("and correctly handles bad input") {
-        assert(
-          Wiktionary
-            .getHeadingsFromDocument(null, 2) // scalastyle:ignore
-            .isEmpty
-        )
-      }
+      )
     }
   }
 }
