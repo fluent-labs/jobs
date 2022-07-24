@@ -2,7 +2,13 @@ package io.fluentlabs.jobs.definitions.analyze
 
 import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import io.fluentlabs.jobs.definitions.source.WiktionaryParser
-import org.apache.spark.sql.functions.{col, count, explode}
+import org.apache.spark.sql.functions.{
+  col,
+  count,
+  explode,
+  regexp_extract,
+  split
+}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 // Use this when you want to know what kind of sections a backup has. Good for getting the rough structure of the dump
@@ -28,8 +34,11 @@ class WiktionarySectionFinder(source: String)
   def getHeadings(data: DataFrame, level: Integer): DataFrame = {
     data
       .select(
+        explode(split(col("text"), "\n")).alias("text")
+      )
+      .select(
         explode(
-          RegexHelper.regexp_extract_all("text", headingRegex(level), 1)
+          regexp_extract(col("text"), headingRegex(level), 1)
         ).alias("heading")
       )
       .groupBy("heading")
