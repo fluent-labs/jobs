@@ -4,7 +4,7 @@ import com.databricks.spark.xml.XmlDataFrameReader
 import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{col, explode, regexp_extract, udf}
-import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import org.apache.spark.sql.{Column, DataFrame, Row, SparkSession}
 
 import scala.util.{Failure, Success, Try}
 
@@ -129,11 +129,11 @@ trait WiktionaryParser {
 
   // Section extraction down here
 
-  def extractSection(data: DataFrame, name: String): DataFrame =
-    data.withColumn(
-      name.toLowerCase(),
-      regexp_extract(col("text"), sectionRegex(name), 1)
-    )
+  def extractSection(name: String): Column = regexp_extract(col("text"), sectionRegex(name), 1)
+  def extractSubSection(name: String): Column = regexp_extract(col("text"), subSectionRegex(name), 1)
+
+  def extractSection(data: DataFrame, name: String): DataFrame = data.withColumn(name.toLowerCase(), extractSection(name))
+  def extractSubsection(data: DataFrame, name: String): DataFrame = data.withColumn(name.toLowerCase(), extractSubSection(name))
 
   def extractSections(
       data: DataFrame,
@@ -143,11 +143,6 @@ trait WiktionaryParser {
       .foldLeft(data.toDF())((data, section) => extractSection(data, section))
   }
 
-  def extractSubsection(data: DataFrame, name: String): DataFrame =
-    data.withColumn(
-      name.toLowerCase(),
-      regexp_extract(col("text"), subSectionRegex(name), 1)
-    )
   def extractSubsections(
       data: DataFrame,
       sections: Array[String]
