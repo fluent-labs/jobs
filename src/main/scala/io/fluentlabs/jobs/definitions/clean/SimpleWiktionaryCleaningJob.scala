@@ -140,16 +140,8 @@ object SimpleWiktionaryCleaningJob
     import spark.implicits._
     val splitDefinitions = splitWordsByPartOfSpeech(data)
       .withColumn("ipa", regexp_extract(col("text"), ipaRegex, 1))
-      .withColumn(
-        "subdefinitions",
-        regexp_extract_all(subdefinitionsRegex, 1)(
-          col("definition")
-        )
-      )
-      .withColumn(
-        "examples",
-        regexp_extract_all(examplesRegex, 1)(col("definition"))
-      )
+      .withColumn("subdefinitions", expr(s"regexp_extract_all(definition, $subdefinitionsRegex, 1)"))
+      .withColumn("examples", expr(s"regexp_extract_all(definition, $examplesRegex, 1)"))
 
     addOptionalSections(splitDefinitions)
       .drop("text")

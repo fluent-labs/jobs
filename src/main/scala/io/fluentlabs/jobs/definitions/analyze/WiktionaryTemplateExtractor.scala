@@ -1,11 +1,8 @@
 package io.fluentlabs.jobs.definitions.analyze
 
 import io.fluentlabs.jobs.definitions.source.WiktionaryParser
-import io.fluentlabs.jobs.definitions.{
-  WiktionaryTemplate,
-  WiktionaryTemplateInstance
-}
-import org.apache.spark.sql.functions.{arrays_zip, col, element_at, explode}
+import io.fluentlabs.jobs.definitions.{WiktionaryTemplate, WiktionaryTemplateInstance}
+import org.apache.spark.sql.functions.{arrays_zip, col, element_at, explode, expr}
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 
 class WiktionaryTemplateExtractor(source: String)
@@ -46,14 +43,8 @@ class WiktionaryTemplateExtractor(source: String)
     import spark.implicits._
 
     data
-      .withColumn(
-        "name",
-        regexp_extract_all(templateRegex, 1)(col("text"))
-      )
-      .withColumn(
-        "arguments",
-        regexp_extract_all(templateRegex, 2)(col("text"))
-      )
+      .withColumn("name", expr(s"regexp_extract_all(text, $templateRegex, 1)"))
+      .withColumn("arguments", expr(s"regexp_extract_all(text, $templateRegex, 2)"))
       .select(
         explode(arrays_zip(col("name"), col("arguments")))
           .alias("template")
@@ -68,6 +59,10 @@ class WiktionaryTemplateExtractor(source: String)
   )(implicit spark: SparkSession): Dataset[WiktionaryTemplate] = {
     import spark.implicits._
 
-    data.groupBy("name").count().sort(col("count").desc).as[WiktionaryTemplate]
+    data
+      .groupBy("name")
+      .count()
+      .sort(col("count").desc)
+      .as[WiktionaryTemplate]
   }
 }

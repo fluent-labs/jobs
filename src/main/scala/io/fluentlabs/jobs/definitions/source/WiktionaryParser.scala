@@ -154,15 +154,4 @@ trait WiktionaryParser {
   ): DataFrame = {
     sections.foldLeft(data)((data, section) => extractSection(data, section))
   }
-
-  // Defined in SPARK-24884 but not released yet
-  val regexp_extract_all: (String, Int) => UserDefinedFunction =
-    (regex: String, captureGroupIndex: Int) =>
-      udf((input: String) => {
-        regex.r
-          .findAllIn(input)
-          .matchData
-          .map(m => m.group(captureGroupIndex))
-          .toArray
-      })
 }
