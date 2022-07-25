@@ -1,7 +1,6 @@
-package io.fluentlabs.jobs.definitions
+package io.fluentlabs.jobs.definitions.source
 
 import io.fluentlabs.jobs.definitions.helpers.RegexHelper
-import io.fluentlabs.jobs.definitions.source.WiktionaryParser
 import org.scalatest.funspec.AnyFunSpec
 
 class WiktionaryTest extends AnyFunSpec {

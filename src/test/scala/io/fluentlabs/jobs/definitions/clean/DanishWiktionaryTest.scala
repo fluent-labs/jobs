@@ -1,4 +1,4 @@
-package io.fluentlabs.jobs.definitions.source
+package io.fluentlabs.jobs.definitions.clean
 
 import org.scalatest.funspec.AnyFunSpec
 
