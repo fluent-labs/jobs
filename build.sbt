@@ -58,6 +58,9 @@ lazy val forcedDependencies = Seq(
   Dependencies.jacksonScala,
   Dependencies.jacksonDatabind,
   Dependencies.jacksonCore,
+
+  // Sometimes an obsolete version of this gets pulled in at runtime.
+  // This breaks all spark runs.
   Dependencies.paranamer,
   Dependencies.paranamer % "runtime"
 )
