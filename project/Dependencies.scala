@@ -23,4 +23,6 @@ object Dependencies {
     "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
   val jacksonCore =
     "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion
+
+  val paranamer = "com.thoughtworks.paranamer" % "paranamer" % "2.8"
 }
