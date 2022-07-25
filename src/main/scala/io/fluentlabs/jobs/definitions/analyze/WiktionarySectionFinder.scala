@@ -1,15 +1,10 @@
 package io.fluentlabs.jobs.definitions.analyze
 
-import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import io.fluentlabs.jobs.definitions.source.WiktionaryParser
-import org.apache.spark.sql.functions.{
-  col,
-  count,
-  explode,
-  regexp_extract,
-  split
-}
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+
+case class WiktionarySection(heading: String, count: BigInt)
 
 // Use this when you want to know what kind of sections a backup has. Good for getting the rough structure of the dump
 class WiktionarySectionFinder(source: String)
@@ -31,18 +26,22 @@ class WiktionarySectionFinder(source: String)
     getHeadings(data, 4).write.csv(s"$outputPath/headings/level_four")
   }
 
-  def getHeadings(data: DataFrame, level: Integer): DataFrame = {
+  def getHeadings(
+      data: DataFrame,
+      level: Integer
+  )(implicit spark: SparkSession): Dataset[WiktionarySection] = {
+    import spark.implicits._
+
     data
       .select(
         explode(split(col("text"), "\n")).alias("text")
       )
       .select(
-        explode(
-          regexp_extract(col("text"), headingRegex(level), 1)
-        ).alias("heading")
+        regexp_extract(col("text"), headingRegex(level), 1).alias("heading")
       )
       .groupBy("heading")
       .agg(count("*").alias("count"))
+      .as[WiktionarySection]
       .sort(col("count"))
       .coalesce(1)
   }
