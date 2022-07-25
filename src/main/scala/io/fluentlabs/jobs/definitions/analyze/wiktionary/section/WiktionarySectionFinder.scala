@@ -1,5 +1,6 @@
-package io.fluentlabs.jobs.definitions.analyze
+package io.fluentlabs.jobs.definitions.analyze.wiktionary.section
 
+import io.fluentlabs.jobs.definitions.analyze.DefinitionsAnalysisJob
 import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import io.fluentlabs.jobs.definitions.source.WiktionaryParser
 import org.apache.spark.sql.functions._
@@ -18,6 +19,7 @@ class WiktionarySectionFinder(source: String)
   override def load(path: String)(implicit spark: SparkSession): DataFrame =
     loadWiktionaryDump(path)
 
+  // $COVERAGE-OFF$
   def analyze(data: DataFrame, outputPath: String)(implicit
       spark: SparkSession
   ): Unit = {
@@ -26,6 +28,7 @@ class WiktionarySectionFinder(source: String)
     getHeadings(data, 3).write.csv(s"$outputPath/headings/level_three")
     getHeadings(data, 4).write.csv(s"$outputPath/headings/level_four")
   }
+  // $COVERAGE-ON$
 
   def getHeadings(
       data: DataFrame,

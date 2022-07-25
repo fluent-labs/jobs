@@ -1,7 +1,6 @@
-package io.fluentlabs.jobs.definitions.analyze
+package io.fluentlabs.jobs.definitions.analyze.wiktionary.template
 
 import io.fluentlabs.jobs.definitions.WiktionaryRawText
-import io.fluentlabs.jobs.definitions.analyze.WiktionaryTemplateExtractor
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.scalatest.funspec.AnyFunSpec
