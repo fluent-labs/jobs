@@ -1,6 +1,5 @@
-package io.fluentlabs.jobs.definitions.source
+package io.fluentlabs.jobs.definitions.clean
 
-import io.fluentlabs.jobs.definitions.clean.{CEDICT, CEDICTDefinitionEntry}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.funspec.AnyFunSpec
 

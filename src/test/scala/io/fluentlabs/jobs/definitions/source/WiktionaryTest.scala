@@ -1,7 +1,6 @@
-package io.fluentlabs.jobs.definitions
+package io.fluentlabs.jobs.definitions.source
 
 import io.fluentlabs.jobs.definitions.helpers.RegexHelper
-import io.fluentlabs.jobs.definitions.source.WiktionaryParser
 import org.scalatest.funspec.AnyFunSpec
 
 class WiktionaryTest extends AnyFunSpec {
@@ -16,7 +15,7 @@ class WiktionaryTest extends AnyFunSpec {
       pattern: String,
       index: Integer
   ): List[String] = {
-    pattern.r.findAllMatchIn(data).map(_.group(1)).toList
+    pattern.r.findAllMatchIn(data).map(_.group(index).trim).toList
   }
 
   describe("can correctly generate regexes") {
@@ -72,11 +71,7 @@ class WiktionaryTest extends AnyFunSpec {
 
     it("on the happy path") {
       val regex = Wiktionary.headingRegex(2)
-      val items =
-        text
-          .split("\n")
-          .flatMap(regex.r.findFirstMatchIn(_))
-          .map(_.group(1).trim)
+      val items = regex_extract_all(text, regex, 1)
       assert(
         items sameElements Array(
           "This is a heading",

@@ -1,10 +1,5 @@
-package io.fluentlabs.jobs.definitions.source
+package io.fluentlabs.jobs.definitions.clean
 
-import io.fluentlabs.jobs.definitions.WiktionaryRawEntry
-import io.fluentlabs.jobs.definitions.clean.{
-  SimpleWiktionaryCleaningJob,
-  SimpleWiktionaryDefinitionEntry
-}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.funspec.AnyFunSpec
 
@@ -18,6 +13,12 @@ class SimpleWiktionaryTest extends AnyFunSpec {
       .getOrCreate()
   }
   import spark.implicits._
+
+  def runTest(token: String, text: String): SimpleWiktionaryDefinitionEntry = {
+    val data = Seq((token, text)).toDF("token", "text")
+    val job = SimpleWiktionaryCleaningJob.clean(data)(spark)
+    job.first()
+  }
 
   it("can parse a simple definition") {
     val text =
@@ -37,11 +38,7 @@ class SimpleWiktionaryTest extends AnyFunSpec {
                  |
                  |[[Category:Auxiliary verbs]]""".stripMargin
 
-    val entryraw = WiktionaryRawEntry(42, "Is", text)
-    val entryParsed: SimpleWiktionaryDefinitionEntry =
-      SimpleWiktionaryCleaningJob
-        .clean(Seq(entryraw).toDF())(spark)
-        .first()
+    val entryParsed = runTest("Is", text)
 
     val definition =
       """
