@@ -57,7 +57,9 @@ lazy val dependencies = Seq(
 lazy val forcedDependencies = Seq(
   Dependencies.jacksonScala,
   Dependencies.jacksonDatabind,
-  Dependencies.jacksonCore
+  Dependencies.jacksonCore,
+  Dependencies.paranamer,
+  Dependencies.paranamer % "runtime"
 )
 
 /*
