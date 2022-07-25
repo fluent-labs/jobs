@@ -31,7 +31,7 @@ object SimpleWiktionaryCleaningJob
     extends WiktionaryCleaningJob[SimpleWiktionaryDefinitionEntry](
       "simplewiktionary"
     ) {
-  @transient override lazy val logger: Logger =
+  @transient lazy val logger: Logger =
     LogManager.getLogger("Simple Wiktionary")
 
   val metaSections = List("pronunciation", "usage", "usage notes")

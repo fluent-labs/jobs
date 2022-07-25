@@ -2,14 +2,10 @@ package io.fluentlabs.jobs.definitions.source
 
 import com.databricks.spark.xml.XmlDataFrameReader
 import io.fluentlabs.jobs.definitions.helpers.RegexHelper
-import org.apache.log4j.{LogManager, Logger}
-import org.apache.spark.sql.functions.{col, explode, regexp_extract}
+import org.apache.spark.sql.functions.{col, regexp_extract}
 import org.apache.spark.sql.{Column, DataFrame, Row, SparkSession}
 
 trait WiktionaryParser {
-  @transient lazy val logger: Logger =
-    LogManager.getLogger(this.getClass.getName)
-
   def loadWiktionaryDump(
       path: String
   )(implicit spark: SparkSession): DataFrame = {
@@ -55,14 +51,12 @@ trait WiktionaryParser {
    */
 
   val beginningOfLine = "^"
-  val caseInsensitiveFlag = "(?i)"
-  val periodMatchesNewlineFlag = "(?s)"
   val oneOrMoreEqualsSign = "=+"
   val doubleEqualsSign = "=="
   val tripleEqualsSign = "==="
   val optionalWhiteSpace = " *"
   val anythingButEqualsSign = "[^=]*"
-  val anythingButEqualsSignCapturing = "([^=]*)"
+  val anythingButEqualsSignCapturing = "([^=]+)"
   val lazyMatchAnything = "(.*?)"
   val spaceOrNewline = "[ |\n]+"
   val nextSection = s"(?>== *[A-Za-z0-9]+ *==$spaceOrNewline)"
@@ -79,7 +73,7 @@ trait WiktionaryParser {
     *   A regular expression letting you find all heading.
     */
   def headingRegex(level: Int): String =
-    beginningOfLine + RegexHelper.repeat(
+    RegexHelper.multilineFlag + beginningOfLine + RegexHelper.repeat(
       "=",
       level
     ) + optionalWhiteSpace + anythingButEqualsSignCapturing + optionalWhiteSpace + RegexHelper
@@ -105,10 +99,11 @@ trait WiktionaryParser {
     *   A regex you can use to pull this out.
     */
   def nLevelSectionRegex(sectionName: String, level: Integer): String =
-    periodMatchesNewlineFlag + caseInsensitiveFlag + RegexHelper.repeat(
-      "=",
-      level
-    ) + optionalWhiteSpace + sectionName + optionalWhiteSpace + RegexHelper
+    RegexHelper.periodMatchesNewlineFlag + RegexHelper.caseInsensitiveFlag + RegexHelper
+      .repeat(
+        "=",
+        level
+      ) + optionalWhiteSpace + sectionName + optionalWhiteSpace + RegexHelper
       .repeat(
         "=",
         level

@@ -8,6 +8,11 @@ object RegexHelper {
   @transient lazy val log: Logger =
     LogManager.getLogger(this.getClass.getName)
 
+  // Control flags
+  val caseInsensitiveFlag = "(?i)"
+  val periodMatchesNewlineFlag = "(?s)"
+  val multilineFlag = "(?m)"
+
   // Helpful escaped regex control characters
   val backslash = "\\"
   val leftBrace = "\\{"

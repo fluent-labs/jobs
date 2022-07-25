@@ -1,5 +1,6 @@
 package io.fluentlabs.jobs.definitions.analyze
 
+import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import io.fluentlabs.jobs.definitions.source.WiktionaryParser
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
@@ -32,13 +33,16 @@ class WiktionarySectionFinder(source: String)
   )(implicit spark: SparkSession): Dataset[WiktionarySection] = {
     import spark.implicits._
 
+    val regex = headingRegex(level)
+    log.info(s"Searching for sections with regex pattern $regex")
+
     data
       .select(
-        explode(split(col("text"), "\n")).alias("text")
+        explode(RegexHelper.regexp_extract_all("text", regex, 1)).alias(
+          "heading"
+        )
       )
-      .select(
-        regexp_extract(col("text"), headingRegex(level), 1).alias("heading")
-      )
+      .withColumn("heading", trim(col("heading")))
       .groupBy("heading")
       .agg(count("*").alias("count"))
       .as[WiktionarySection]

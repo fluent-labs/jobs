@@ -88,29 +88,31 @@ class WiktionarySectionFinderTest extends AnyFunSpec {
       Seq(WiktionaryRawText(text), WiktionaryRawText(secondText)).toDF()
     it("with heading level 2") {
       val headings =
-        SectionFinder.getHeadings(data, 2).collect()
+        SectionFinder
+          .getHeadings(data, 2)
+          .collect()
+          .map(section => (section.heading, section.count.toInt))
+          .toMap
 
-      assert(headings.length == 2)
-      assert(
-        headings sameElements Array(
-          WiktionarySection("Noun", 1),
-          WiktionarySection("Verb", 2)
-        )
-      )
+      assert(headings.contains("Noun"))
+      assert(headings.contains("Verb"))
+      assert(headings.get("Noun").contains(1))
+      assert(headings.get("Verb").contains(2))
     }
 
     it("with heading level 3") {
       val headings =
-        SectionFinder.getHeadings(data, 3).collect()
+        SectionFinder
+          .getHeadings(data, 3)
+          .collect()
+          .map(section => (section.heading, section.count.toInt))
+          .toMap
 
-      assert(headings.length == 3)
-      assert(
-        headings sameElements Array(
-          WiktionarySection("Synonyms", 1),
-          WiktionarySection("Pronunciation", 2),
-          WiktionarySection("See also", 2)
-        )
-      )
+      assert(headings.contains("Synonyms"))
+      assert(headings.contains("Pronunciation"))
+      assert(headings.contains("See also"))
+      assert(headings.get("Synonyms").contains(1))
+      assert(headings.get("See also").contains(2))
     }
   }
 }
