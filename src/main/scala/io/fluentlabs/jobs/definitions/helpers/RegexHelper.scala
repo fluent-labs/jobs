@@ -1,15 +1,21 @@
 package io.fluentlabs.jobs.definitions.helpers
 
+import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.Column
 import org.apache.spark.sql.functions.expr
 
 object RegexHelper {
+  @transient lazy val log: Logger =
+    LogManager.getLogger(this.getClass.getName)
+
   // Helpful escaped regex control characters
   val backslash = "\\"
   val leftBrace = "\\{"
   val rightBrace = "\\}"
   val openParenthesis = "\\("
   val closeParenthesis = "\\)"
+  val openBrace = "\\["
+  val closeBrace = "\\]"
   val pipe = "\\|"
 
   /** Passing a regex to something that will consume backslash escape
@@ -22,11 +28,15 @@ object RegexHelper {
   def doubleEscapeRegex(regex: String): String = {
     // Needed because spark consumes the escape characters before passing to java.util.regex.Pattern
     // And then the pattern is unescaped
-    regex
+    val escaped = regex
       .replaceAll(leftBrace, backslash + leftBrace)
       .replaceAll(rightBrace, backslash + rightBrace)
       .replaceAll(openParenthesis, backslash + openParenthesis)
       .replaceAll(closeParenthesis, backslash + closeParenthesis)
+      .replaceAll(openBrace, backslash + openBrace)
+      .replaceAll(closeBrace, backslash + closeBrace)
+    log.info(s"Escaping regex $regex: $escaped")
+    escaped
   }
 
   /** Get all instances of a regular expression in a column.
