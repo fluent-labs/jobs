@@ -1,8 +1,9 @@
-package io.fluentlabs.jobs.definitions.analyze
+package io.fluentlabs.jobs.definitions.analyze.wiktionary.template
 
+import io.fluentlabs.jobs.definitions.analyze.DefinitionsAnalysisJob
 import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import io.fluentlabs.jobs.definitions.source.WiktionaryParser
-import org.apache.spark.sql.functions.{arrays_zip, col, count, explode, first}
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 
 case class WiktionaryTemplateInstance(name: String, arguments: String)

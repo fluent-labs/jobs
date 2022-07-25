@@ -1,7 +1,7 @@
-package io.fluentlabs.jobs.definitions.analyze
+package io.fluentlabs.jobs.definitions.analyze.wiktionary.section
 
 import io.fluentlabs.jobs.definitions.WiktionaryRawText
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.SparkSession
 import org.scalatest.funspec.AnyFunSpec
 
 class WiktionarySectionFinderTest extends AnyFunSpec {
