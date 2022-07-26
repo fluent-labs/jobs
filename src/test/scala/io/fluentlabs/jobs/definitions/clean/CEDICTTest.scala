@@ -15,7 +15,7 @@ class CEDICTTest extends AnyFunSpec {
 
   def runTest(entry: String): CEDICTDefinitionEntry = {
     CEDICT
-      .clean(Seq(entry).toDF().withColumnRenamed("value", "entry"))(spark)
+      .clean(Seq(CEDICTRawEntry(entry)).toDS())(spark)
       .first()
   }
 

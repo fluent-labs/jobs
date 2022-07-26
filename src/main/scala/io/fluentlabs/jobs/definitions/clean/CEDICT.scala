@@ -1,8 +1,9 @@
 package io.fluentlabs.jobs.definitions.clean
 
 import org.apache.spark.sql.functions.{col, regexp_extract, split}
-import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+import org.apache.spark.sql.{Dataset, SparkSession}
 
+case class CEDICTRawEntry(entry: String)
 case class CEDICTDefinitionEntry(
     subdefinitions: List[String],
     pinyin: String,
@@ -11,16 +12,26 @@ case class CEDICTDefinitionEntry(
     token: String
 )
 
-object CEDICT extends DefinitionsCleaningJob[CEDICTDefinitionEntry]("cedict") {
+object CEDICT
+    extends DefinitionsCleaningJob[CEDICTRawEntry, CEDICTDefinitionEntry](
+      "cedict"
+    ) {
   val lineRegex: String = "([^ ]+)\\s([^ ]+) \\[(.*)\\] \\/(.*)\\/"
 
   override def getFilename(source: String, version: String): String =
     "cedict_ts.u8"
 
-  override def load(path: String)(implicit spark: SparkSession): DataFrame =
-    spark.read.textFile(path).withColumnRenamed("value", "entry")
+  override def load(
+      path: String
+  )(implicit spark: SparkSession): Dataset[CEDICTRawEntry] = {
+    import spark.implicits._
+    spark.read
+      .textFile(path)
+      .withColumnRenamed("value", "entry")
+      .as[CEDICTRawEntry]
+  }
 
-  override def clean(data: DataFrame)(implicit
+  override def clean(data: Dataset[CEDICTRawEntry])(implicit
       spark: SparkSession
   ): Dataset[CEDICTDefinitionEntry] = {
     import spark.implicits._

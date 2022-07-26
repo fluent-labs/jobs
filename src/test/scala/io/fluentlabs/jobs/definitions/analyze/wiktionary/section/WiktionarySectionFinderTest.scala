@@ -1,6 +1,6 @@
 package io.fluentlabs.jobs.definitions.analyze.wiktionary.section
 
-import io.fluentlabs.jobs.definitions.WiktionaryRawText
+import io.fluentlabs.jobs.definitions.source.WiktionaryRawEntry
 import org.apache.spark.sql.SparkSession
 import org.scalatest.funspec.AnyFunSpec
 
@@ -85,7 +85,10 @@ class WiktionarySectionFinderTest extends AnyFunSpec {
 
   describe("it can extract a section from an entry") {
     val data =
-      Seq(WiktionaryRawText(text), WiktionaryRawText(secondText)).toDF()
+      Seq(
+        WiktionaryRawEntry(42, "fear", text),
+        WiktionaryRawEntry(43, "terror", text)
+      ).toDS()
     it("with heading level 2") {
       val headings =
         SectionFinder

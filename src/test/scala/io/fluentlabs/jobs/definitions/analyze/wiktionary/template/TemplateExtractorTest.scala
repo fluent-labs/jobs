@@ -1,8 +1,8 @@
 package io.fluentlabs.jobs.definitions.analyze.wiktionary.template
 
-import io.fluentlabs.jobs.definitions.WiktionaryRawText
+import io.fluentlabs.jobs.definitions.source.WiktionaryRawEntry
 import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{Dataset, SparkSession}
 import org.scalatest.funspec.AnyFunSpec
 
 class TemplateExtractorTest extends AnyFunSpec {
@@ -30,8 +30,8 @@ class TemplateExtractorTest extends AnyFunSpec {
   val textWithNoArgumentsTemplate: String = text + "\n* {{test}}"
   val emptyText = ""
 
-  def getDatasetFromText(input: String): DataFrame =
-    Seq(WiktionaryRawText(input)).toDF()
+  def getDatasetFromText(input: String): Dataset[WiktionaryRawEntry] =
+    Seq(WiktionaryRawEntry(42, "token", input)).toDS()
 
   describe("it can extract templates with arguments from an entry") {
     val data = getDatasetFromText(text)

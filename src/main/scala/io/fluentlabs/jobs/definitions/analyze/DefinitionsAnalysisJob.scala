@@ -2,17 +2,17 @@ package io.fluentlabs.jobs.definitions.analyze
 
 import io.fluentlabs.jobs.definitions.DefinitionsJob
 import org.apache.log4j.{LogManager, Logger}
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{Dataset, SparkSession}
 
-abstract class DefinitionsAnalysisJob(source: String)
+abstract class DefinitionsAnalysisJob[T](source: String)
     extends DefinitionsJob(source, "raw", "analysis") {
   @transient override lazy val log: Logger =
     LogManager.getLogger("Definitions analysis job")
 
   // Methods for subclasses to implement
   def getFilename(source: String, version: String): String
-  def load(path: String)(implicit spark: SparkSession): DataFrame
-  def analyze(data: DataFrame, outputPath: String)(implicit
+  def load(path: String)(implicit spark: SparkSession): Dataset[T]
+  def analyze(data: Dataset[T], outputPath: String)(implicit
       spark: SparkSession
   ): Unit
 
