@@ -1,19 +1,18 @@
 package io.fluentlabs.jobs.definitions.clean
 
-import io.fluentlabs.jobs.SparkSessionBuilder
 import io.fluentlabs.jobs.definitions.DefinitionsJob
 import org.apache.log4j.{LogManager, Logger}
-import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+import org.apache.spark.sql.{Dataset, SparkSession}
 
-abstract class DefinitionsCleaningJob[T](source: String)
+abstract class DefinitionsCleaningJob[T, U](source: String)
     extends DefinitionsJob(source, "raw", "clean") {
   @transient override lazy val log: Logger =
     LogManager.getLogger("Definitions parsing job")
 
   // Methods for subclasses to implement
   def getFilename(source: String, version: String): String
-  def load(path: String)(implicit spark: SparkSession): DataFrame
-  def clean(data: DataFrame)(implicit spark: SparkSession): Dataset[T]
+  def load(path: String)(implicit spark: SparkSession): Dataset[T]
+  def clean(data: Dataset[T])(implicit spark: SparkSession): Dataset[U]
 
   override def run(inputPath: String, outputPath: String)(implicit
       spark: SparkSession

@@ -2,31 +2,36 @@ package io.fluentlabs.jobs.definitions.analyze.wiktionary.template
 
 import io.fluentlabs.jobs.definitions.analyze.DefinitionsAnalysisJob
 import io.fluentlabs.jobs.definitions.helpers.RegexHelper
-import io.fluentlabs.jobs.definitions.source.WiktionaryParser
+import io.fluentlabs.jobs.definitions.source.{
+  WiktionaryParser,
+  WiktionaryRawEntry
+}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+import org.apache.spark.sql.{Dataset, SparkSession}
 
 case class WiktionaryTemplateInstance(name: String, arguments: String)
 case class WiktionaryTemplate(name: String, count: BigInt, example: String)
 
 class WiktionaryTemplateExtractor(source: String)
-    extends DefinitionsAnalysisJob(source)
+    extends DefinitionsAnalysisJob[WiktionaryRawEntry](source)
     with WiktionaryParser {
 
   override def getFilename(source: String, version: String): String =
     s"$source-$version-pages-meta-current.xml"
 
-  override def load(path: String)(implicit spark: SparkSession): DataFrame =
+  override def load(path: String)(implicit
+      spark: SparkSession
+  ): Dataset[WiktionaryRawEntry] =
     loadWiktionaryDump(path)
 
-  def analyze(data: DataFrame, outputPath: String)(implicit
-      spark: SparkSession
+  override def analyze(data: Dataset[WiktionaryRawEntry], outputPath: String)(
+      implicit spark: SparkSession
   ): Unit =
     extractTemplateCount(extractTemplateInstances(data)).write
       .csv(s"$outputPath/templates")
 
   def extractTemplateInstances(
-      data: DataFrame
+      data: Dataset[WiktionaryRawEntry]
   )(implicit spark: SparkSession): Dataset[WiktionaryTemplateInstance] = {
     import spark.implicits._
 

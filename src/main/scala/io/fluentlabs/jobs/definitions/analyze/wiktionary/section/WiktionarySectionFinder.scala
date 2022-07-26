@@ -2,25 +2,30 @@ package io.fluentlabs.jobs.definitions.analyze.wiktionary.section
 
 import io.fluentlabs.jobs.definitions.analyze.DefinitionsAnalysisJob
 import io.fluentlabs.jobs.definitions.helpers.RegexHelper
-import io.fluentlabs.jobs.definitions.source.WiktionaryParser
+import io.fluentlabs.jobs.definitions.source.{
+  WiktionaryParser,
+  WiktionaryRawEntry
+}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+import org.apache.spark.sql.{Dataset, SparkSession}
 
 case class WiktionarySection(heading: String, count: BigInt)
 
 // Use this when you want to know what kind of sections a backup has. Good for getting the rough structure of the dump
 class WiktionarySectionFinder(source: String)
-    extends DefinitionsAnalysisJob(source)
+    extends DefinitionsAnalysisJob[WiktionaryRawEntry](source)
     with WiktionaryParser {
 
   override def getFilename(source: String, version: String): String =
     s"$source-$version-pages-meta-current.xml"
 
-  override def load(path: String)(implicit spark: SparkSession): DataFrame =
+  override def load(path: String)(implicit
+      spark: SparkSession
+  ): Dataset[WiktionaryRawEntry] =
     loadWiktionaryDump(path)
 
   // $COVERAGE-OFF$
-  def analyze(data: DataFrame, outputPath: String)(implicit
+  def analyze(data: Dataset[WiktionaryRawEntry], outputPath: String)(implicit
       spark: SparkSession
   ): Unit = {
     getHeadings(data, 1).write.csv(s"$outputPath/headings/level_one")
@@ -31,7 +36,7 @@ class WiktionarySectionFinder(source: String)
   // $COVERAGE-ON$
 
   def getHeadings(
-      data: DataFrame,
+      data: Dataset[WiktionaryRawEntry],
       level: Integer
   )(implicit spark: SparkSession): Dataset[WiktionarySection] = {
     import spark.implicits._

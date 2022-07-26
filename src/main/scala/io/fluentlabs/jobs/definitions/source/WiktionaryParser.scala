@@ -3,19 +3,26 @@ package io.fluentlabs.jobs.definitions.source
 import com.databricks.spark.xml.XmlDataFrameReader
 import io.fluentlabs.jobs.definitions.helpers.RegexHelper
 import org.apache.spark.sql.functions.{col, regexp_extract}
-import org.apache.spark.sql.{Column, DataFrame, Row, SparkSession}
+import org.apache.spark.sql.{Column, DataFrame, Dataset, Row, SparkSession}
+
+// Keeping this here instead of in jobs because analysis and cleaning jobs both use this.
+case class WiktionaryRawEntry(id: Long, token: String, text: String)
 
 trait WiktionaryParser {
   def loadWiktionaryDump(
       path: String
-  )(implicit spark: SparkSession): DataFrame = {
+  )(implicit spark: SparkSession): Dataset[WiktionaryRawEntry] = {
+    import spark.implicits._
     spark.read
       .option("rowTag", "page")
       .xml(path)
-      .select("revision.text._VALUE", "title", "id")
-      .withColumnRenamed("title", "token")
-      .withColumnRenamed("_VALUE", "text")
+      .select(
+        col("revision.text._VALUE").alias("text"),
+        col("title").alias("token"),
+        col("id")
+      )
       .filter(row => filterMetaArticles(row))
+      .as[WiktionaryRawEntry]
   }
 
   val metaArticleTitles: Set[String] =
@@ -131,7 +138,7 @@ trait WiktionaryParser {
     data.withColumn(name.toLowerCase(), extractSubSection(name))
 
   def extractSections(
-      data: DataFrame,
+      data: Dataset[WiktionaryRawEntry],
       sections: Array[String]
   ): DataFrame = {
     sections

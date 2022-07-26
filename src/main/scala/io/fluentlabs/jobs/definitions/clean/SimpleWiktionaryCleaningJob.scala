@@ -1,6 +1,7 @@
 package io.fluentlabs.jobs.definitions.clean
 
 import io.fluentlabs.jobs.definitions.helpers.RegexHelper
+import io.fluentlabs.jobs.definitions.source.WiktionaryRawEntry
 import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions._
@@ -136,7 +137,7 @@ object SimpleWiktionaryCleaningJob
   val examplesRegex: String = examplesMarker + optionalSpace + "([^\\n]*)"
 
   override def clean(
-      data: DataFrame
+      data: Dataset[WiktionaryRawEntry]
   )(implicit spark: SparkSession): Dataset[SimpleWiktionaryDefinitionEntry] = {
     import spark.implicits._
     val splitDefinitions = splitWordsByPartOfSpeech(data)
@@ -159,7 +160,7 @@ object SimpleWiktionaryCleaningJob
     mapWiktionaryPartOfSpeechToDomainPartOfSpeech(partsOfSpeech(index))
   )
 
-  def splitWordsByPartOfSpeech(data: DataFrame): DataFrame =
+  def splitWordsByPartOfSpeech(data: Dataset[WiktionaryRawEntry]): DataFrame =
     extractSections(data, partsOfSpeech)
       .select(col("token"), col("text"), posexplode(partOfSpeechCols))
       .filter("col not like ''")

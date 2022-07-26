@@ -1,21 +1,15 @@
 package io.fluentlabs.jobs.definitions.clean
 
-import org.apache.spark.sql.SparkSession
+import io.fluentlabs.jobs.TestWithSpark
+import io.fluentlabs.jobs.definitions.source.WiktionaryRawEntry
 import org.scalatest.funspec.AnyFunSpec
 
-class SimpleWiktionaryTest extends AnyFunSpec {
+class SimpleWiktionaryTest extends AnyFunSpec with TestWithSpark {
 
-  lazy val spark: SparkSession = {
-    SparkSession
-      .builder()
-      .master("local")
-      .appName("spark test example")
-      .getOrCreate()
-  }
   import spark.implicits._
 
   def runTest(token: String, text: String): SimpleWiktionaryDefinitionEntry = {
-    val data = Seq((token, text)).toDF("token", "text")
+    val data = Seq(WiktionaryRawEntry(42, token, text)).toDS()
     val job = SimpleWiktionaryCleaningJob.clean(data)(spark)
     job.first()
   }
