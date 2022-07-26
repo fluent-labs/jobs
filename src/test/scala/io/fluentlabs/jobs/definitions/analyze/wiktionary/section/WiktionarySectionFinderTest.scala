@@ -77,7 +77,7 @@ class WiktionarySectionFinderTest extends AnyFunSpec with TestWithSpark {
       |
       |{{emotions}}""".stripMargin
 
-  val terror: WiktionaryRawEntry = WiktionaryRawEntry(43, "terror", text)
+  val terror: WiktionaryRawEntry = WiktionaryRawEntry(43, "terror", secondText)
 
   describe("it can extract a section from an entry") {
     val data = createDataset(Seq(fear, terror))
