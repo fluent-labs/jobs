@@ -1,21 +1,15 @@
 package io.fluentlabs.jobs.definitions.analyze.wiktionary.template
 
+import io.fluentlabs.jobs.TestWithSpark
 import io.fluentlabs.jobs.definitions.source.WiktionaryRawEntry
+import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.{Dataset, SparkSession}
 import org.scalatest.funspec.AnyFunSpec
 
-class TemplateExtractorTest extends AnyFunSpec {
+class TemplateExtractorTest extends AnyFunSpec with TestWithSpark {
   object TemplateExtractor
       extends WiktionaryTemplateExtractor("simplewiktionary")
 
-  implicit val spark: SparkSession = {
-    SparkSession
-      .builder()
-      .master("local")
-      .appName("TemplateExtractorTest")
-      .getOrCreate()
-  }
   import spark.implicits._
 
   val text: String =

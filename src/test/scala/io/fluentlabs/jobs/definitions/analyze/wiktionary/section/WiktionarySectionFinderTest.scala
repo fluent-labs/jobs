@@ -1,19 +1,12 @@
 package io.fluentlabs.jobs.definitions.analyze.wiktionary.section
 
+import io.fluentlabs.jobs.TestWithSpark
 import io.fluentlabs.jobs.definitions.source.WiktionaryRawEntry
-import org.apache.spark.sql.SparkSession
 import org.scalatest.funspec.AnyFunSpec
 
-class WiktionarySectionFinderTest extends AnyFunSpec {
+class WiktionarySectionFinderTest extends AnyFunSpec with TestWithSpark {
   object SectionFinder extends WiktionarySectionFinder("simplewiktionary")
 
-  implicit val spark: SparkSession = {
-    SparkSession
-      .builder()
-      .master("local")
-      .appName("WiktionarySectionFinderTest")
-      .getOrCreate()
-  }
   import spark.implicits._
 
   val text: String =
@@ -56,6 +49,7 @@ class WiktionarySectionFinderTest extends AnyFunSpec {
       |* [[scare]]
       |
       |{{emotions}}""".stripMargin
+  val fear: WiktionaryRawEntry = WiktionaryRawEntry(42, "fear", text)
 
   val secondText: String =
     """{{wikipedia}}
@@ -83,12 +77,11 @@ class WiktionarySectionFinderTest extends AnyFunSpec {
       |
       |{{emotions}}""".stripMargin
 
+  val terror: WiktionaryRawEntry = WiktionaryRawEntry(43, "terror", text)
+
   describe("it can extract a section from an entry") {
-    val data =
-      Seq(
-        WiktionaryRawEntry(42, "fear", text),
-        WiktionaryRawEntry(43, "terror", text)
-      ).toDS()
+    val data = createDataset(Seq(fear, terror))
+
     it("with heading level 2") {
       val headings =
         SectionFinder

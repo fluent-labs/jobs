@@ -1,18 +1,11 @@
 package io.fluentlabs.jobs.definitions.helpers
 
-import org.apache.spark.sql.SparkSession
+import io.fluentlabs.jobs.TestWithSpark
 import org.scalatest.funspec.AnyFunSpec
 
 case class RegexMatch(matches: Seq[String])
 
-class RegexHelperTest extends AnyFunSpec {
-  lazy val spark: SparkSession = {
-    SparkSession
-      .builder()
-      .master("local")
-      .appName("spark test example")
-      .getOrCreate()
-  }
+class RegexHelperTest extends AnyFunSpec with TestWithSpark {
   import spark.implicits._
 
   def get_matches(t: String, expression: String): RegexMatch = {

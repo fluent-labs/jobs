@@ -1,16 +1,10 @@
 package io.fluentlabs.jobs.definitions.clean
 
+import io.fluentlabs.jobs.TestWithSpark
 import org.apache.spark.sql.SparkSession
 import org.scalatest.funspec.AnyFunSpec
 
-class CEDICTTest extends AnyFunSpec {
-  lazy val spark: SparkSession = {
-    SparkSession
-      .builder()
-      .master("local")
-      .appName("spark test example")
-      .getOrCreate()
-  }
+class CEDICTTest extends AnyFunSpec with TestWithSpark {
   import spark.implicits._
 
   def runTest(entry: String): CEDICTDefinitionEntry = {
