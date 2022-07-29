@@ -23,6 +23,10 @@ jobs:
 
       - name: Build jar
         run: sbt assembly
+
+      - name: Build container
+        run: |
+          docker build . -t lkjaero/spark-runner:3.2.2
   
   test:
     runs-on: ubuntu-latest
