@@ -5,7 +5,7 @@ object Dependencies {
   val jacksonVersion = "2.11.3"
   val sparkVersion = "3.3.0"
 
-  lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.12"
+  lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.14"
 
   val sparkCore = "org.apache.spark" %% "spark-core" % sparkVersion
   val sparkSql = "org.apache.spark" %% "spark-sql" % sparkVersion
