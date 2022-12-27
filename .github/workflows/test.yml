@@ -16,7 +16,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Cache sbt packages
-        uses: actions/cache@v3.0.5
+        uses: actions/cache@v3.2.2
         with:
           key: sbt_cache
           path: ~/.cache/coursier/v1/
